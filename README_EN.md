@@ -1,5 +1,13 @@
 # MiniMind-wrz: Learn LLM from Scratch
 
+[![GitHub stars](https://img.shields.io/github/stars/1209244478/learn-minimind-wrz?style=social)](https://github.com/1209244478/learn-minimind-wrz)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
+[![中文](https://img.shields.io/badge/README-中文-red.svg)](README.md)
+
+> **26 lessons to master LLMs from scratch** — From Python basics to SFT/DPO/RLHF, each lesson is a standalone `.py` file you can run immediately!
+
 [中文版](README.md)
 
 Learn Large Language Models step by step, from zero to deployment.

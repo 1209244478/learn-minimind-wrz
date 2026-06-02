@@ -1,4 +1,12 @@
-# MiniMind-wrz 从0学习项目
+# MiniMind-wrz: 从0学习大语言模型
+
+[![GitHub stars](https://img.shields.io/github/stars/1209244478/learn-minimind-wrz?style=social)](https://github.com/1209244478/learn-minimind-wrz)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
+[![English](https://img.shields.io/badge/README-English-blue.svg)](README_EN.md)
+
+> **26课从零学会大语言模型** — 从 Python 基础到 SFT/DPO/RLHF，每课一个独立可运行的 `.py` 文件，0基础也能跟学！
 
 从零开始，一步步理解大语言模型的每一个组件。
 0基础也能学会！从 Python/PyTorch 基础到大模型部署，一课不缺。
