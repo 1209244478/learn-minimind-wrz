@@ -43,12 +43,23 @@ Based on the [MiniMind](https://github.com/jingyaogong/minimind) project, this l
 |--------|-------|-------------|
 | 20 | Final Project | Build a runnable, trainable mini LLM from scratch |
 
+## Alignment & Optimization (Lessons 21–25) — Making models better
+
+| Lesson | Topic | Description |
+|--------|-------|-------------|
+| 21 | SFT | Supervised Fine-Tuning: teaching the model to converse |
+| 22 | DPO | Direct Preference Optimization: preferring good responses |
+| 23 | Distillation | Knowledge Distillation: big model teaches small model |
+| 24 | RLHF | RLHF / GRPO: aligning with human feedback |
+| 25 | Data Prep | Data preparation & cleaning: garbage in, garbage out |
+
 ## Recommended Learning Paths
 
 - **Complete beginner**: 0 → 1 → 2 → ... → 10 → 11 → 12 → ... → 19 → 20
 - **Knows PyTorch**: 5 → 6 → ... → 10 → 11 → 12 → ... → 19 → 20
 - **Algorithm focus**: 12 → 13 → 14 → 16 → 17
 - **Deployment focus**: 15 → 18 → 19
+- **Model alignment**: 21 → 22 → 24 → 23 → 25
 - **Quick overview**: 1 → 5 → 9 → 11 → 20
 
 ## How to Run
@@ -61,6 +72,11 @@ python lessons/lesson00_basics.py
 python lessons/lesson01_tokenizer.py
 # ...
 python lessons/lesson20_final_project.py   # Capstone
+python lessons/lesson21_sft.py             # Supervised Fine-Tuning
+python lessons/lesson22_dpo.py             # Direct Preference Optimization
+python lessons/lesson23_distillation.py    # Knowledge Distillation
+python lessons/lesson24_rlhf.py            # RLHF/GRPO
+python lessons/lesson25_data_prep.py       # Data Preparation
 ```
 
 **English version:**
@@ -69,6 +85,11 @@ python lessons_en/lesson00_basics.py
 python lessons_en/lesson01_tokenizer.py
 # ...
 python lessons_en/lesson20_final_project.py   # Capstone
+python lessons_en/lesson21_sft.py             # Supervised Fine-Tuning
+python lessons_en/lesson22_dpo.py             # Direct Preference Optimization
+python lessons_en/lesson23_distillation.py    # Knowledge Distillation
+python lessons_en/lesson24_rlhf.py            # RLHF/GRPO
+python lessons_en/lesson25_data_prep.py       # Data Preparation
 ```
 
 ## Dependencies
@@ -108,6 +129,11 @@ pip install -r requirements.txt
 | 18 Quantization | Quantization & deployment configs |
 | 19 Speculative | Draft-then-verify generation |
 | 20 Final Project | Full pipeline integration |
+| 21 SFT | trainer/train_full_sft.py (SFT dataset + Loss Mask) |
+| 22 DPO | trainer/train_dpo.py (DPO loss + reference model) |
+| 23 Distillation | trainer/train_distillation.py (KL divergence + temperature) |
+| 24 RLHF | trainer/train_grpo.py (reward model + PPO/GRPO) |
+| 25 Data Prep | dataset/lm_dataset.py (data cleaning + deduplication) |
 
 ## Project Structure
 
@@ -117,12 +143,22 @@ minimind-wrz-learn/
 │   ├── lesson00_basics.py
 │   ├── lesson01_tokenizer.py
 │   ├── ...
-│   └── lesson20_final_project.py
-├── lessons_en/                 # English lessons (英文课程)
+│   ├── lesson20_final_project.py
+│   ├── lesson21_sft.py
+│   ├── lesson22_dpo.py
+│   ├── lesson23_distillation.py
+│   ├── lesson24_rlhf.py
+│   └── lesson25_data_prep.py
+├── lessons_en/                 # English lessons
 │   ├── lesson00_basics.py
 │   ├── lesson01_tokenizer.py
 │   ├── ...
-│   └── lesson20_final_project.py
+│   ├── lesson20_final_project.py
+│   ├── lesson21_sft.py
+│   ├── lesson22_dpo.py
+│   ├── lesson23_distillation.py
+│   ├── lesson24_rlhf.py
+│   └── lesson25_data_prep.py
 ├── README.md                   # Chinese README
 ├── README_EN.md                # English README (this file)
 └── requirements.txt
@@ -148,6 +184,11 @@ minimind-wrz-learn/
 - **mHC**: Manifold-constrained hyper-connections for deep networks
 - **Quantization**: INT8/INT4, GPTQ, AWQ, weight-only quantization
 - **Speculative Decoding**: Draft-then-verify with acceptance/rejection
+- **SFT**: Supervised Fine-Tuning with chat templates and loss masking
+- **DPO**: Direct Preference Optimization with reference models
+- **Knowledge Distillation**: Teacher-student training with KL divergence and temperature
+- **RLHF/GRPO**: Reinforcement learning from human feedback, PPO, Group Relative Policy Optimization
+- **Data Preparation**: Cleaning, deduplication, decontamination, and data mixing strategies
 
 ## Acknowledgments
 

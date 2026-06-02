@@ -39,12 +39,23 @@
 |------|------|------|
 | 第20课 | FinalProj | 从零搭建一个能跑能学的迷你 LLM |
 
+## 对齐与优化课程（21-25）— 让模型变得更好
+
+| 课程 | 主题 | 内容 |
+|------|------|------|
+| 第21课 | SFT | 监督微调：让模型学会对话 |
+| 第22课 | DPO | 直接偏好优化：让模型偏好好回答 |
+| 第23课 | Distillation | 知识蒸馏：大模型教小模型 |
+| 第24课 | RLHF | 强化学习人类反馈 / GRPO |
+| 第25课 | DataPrep | 数据准备与清洗：Garbage in, garbage out |
+
 ## 学习路线建议
 
 - **完全0基础**: 0 → 1 → 2 → ... → 10 → 11 → 12 → ... → 19 → 20
 - **有PyTorch基础**: 5 → 6 → ... → 10 → 11 → 12 → ... → 19 → 20
 - **研究算法**: 11 → 12 → 13 → 14 → 17
 - **部署工程**: 15 → 18 → 19
+- **模型对齐**: 21 → 22 → 24 → 23 → 25
 
 ## 运行方式
 
@@ -55,6 +66,11 @@ python lessons/lesson00_basics.py
 python lessons/lesson01_tokenizer.py
 # ...
 python lessons/lesson20_final_project.py   # 综合实战
+python lessons/lesson21_sft.py             # 监督微调
+python lessons/lesson22_dpo.py             # 直接偏好优化
+python lessons/lesson23_distillation.py    # 知识蒸馏
+python lessons/lesson24_rlhf.py            # RLHF/GRPO
+python lessons/lesson25_data_prep.py       # 数据准备与清洗
 ```
 
 ## 依赖
@@ -94,3 +110,8 @@ pip install -r requirements.txt
 | 第16课 YaRN | model_minimind.py: `rope_scaling` 配置 |
 | 第18课 Quantize | 量化部署相关配置 |
 | 第20课 FinalProj | 完整流程串联 |
+| 第21课 SFT | trainer/train_full_sft.py (SFT数据集 + Loss Mask) |
+| 第22课 DPO | trainer/train_dpo.py (DPO损失 + 参考模型) |
+| 第23课 Distillation | trainer/train_distillation.py (KL散度 + 温度) |
+| 第24课 RLHF | trainer/train_grpo.py (奖励模型 + PPO/GRPO) |
+| 第25课 DataPrep | dataset/lm_dataset.py (数据清洗 + 去重) |

@@ -220,7 +220,7 @@ class Attention(nn.Module):
         self.freqs_cis = precompute_freqs_cis(self.head_dim, max_len * 2).to(DEVICE)
         self.register_buffer("causal_mask", torch.tril(torch.ones(max_len * 2, max_len * 2)))
 
-    def forward(self, x, start_pos=0):
+    def forward(self, x, start_pos=0, use_cache=False):
         B, T, _ = x.shape
         q = self.wq(x).view(B, T, self.n_heads, self.head_dim)
         k = self.wk(x).view(B, T, self.n_kv_heads, self.head_dim)
@@ -234,15 +234,26 @@ class Attention(nn.Module):
             k = k.repeat_interleave(self.n_rep, dim=2)
             v = v.repeat_interleave(self.n_rep, dim=2)
 
-        q = q.transpose(1, 2)
-        k = k.transpose(1, 2)
+        # KV Cache: 将新的 K, V 追加到缓存中
+        if use_cache:
+            if self.k_cache is not None:
+                # k_cache/v_cache: [B, cached_len, n_heads, head_dim]
+                k = torch.cat([self.k_cache, k], dim=1)
+                v = torch.cat([self.v_cache, v], dim=1)
+            self.k_cache = k
+            self.v_cache = v
+
+        q = q.transpose(1, 2)  # [B, n_heads, T, head_dim]
+        k = k.transpose(1, 2)  # [B, n_heads, S, head_dim]  S = cached_len + T
         v = v.transpose(1, 2)
 
         q = self.q_norm(q)
         k = self.k_norm(k)
 
         scores = (q @ k.transpose(-2, -1)) / math.sqrt(self.head_dim)
-        mask = self.causal_mask[start_pos : start_pos + T, start_pos : start_pos + T]
+        # 因果掩码：q 只能看到 k 中 start_pos 之前的位置
+        S = k.shape[2]
+        mask = self.causal_mask[start_pos : start_pos + T, :S]
         scores = scores.masked_fill(mask == 0, float("-inf"))
         attn = F.softmax(scores, dim=-1)
         out = (attn @ v).transpose(1, 2).contiguous().view(B, T, -1)
@@ -272,8 +283,8 @@ class Block(nn.Module):
         self.norm1 = RMSNorm(dim)
         self.norm2 = RMSNorm(dim)
 
-    def forward(self, x, start_pos=0):
-        x = x + self.attn(self.norm1(x), start_pos)
+    def forward(self, x, start_pos=0, use_cache=False):
+        x = x + self.attn(self.norm1(x), start_pos, use_cache)
         x = x + self.ffn(self.norm2(x))
         return x
 
@@ -323,11 +334,11 @@ class MiniGPT(nn.Module):
         elif isinstance(m, nn.Embedding):
             nn.init.normal_(m.weight, mean=0.0, std=0.02)
 
-    def forward(self, ids, targets=None, start_pos=0):
+    def forward(self, ids, targets=None, start_pos=0, use_cache=False):
         B, T = ids.shape
         x = self.tok_emb(ids)
         for block in self.blocks:
-            x = block(x, start_pos)
+            x = block(x, start_pos, use_cache)
         x = self.norm(x)
         logits = self.lm_head(x)
 
@@ -468,7 +479,7 @@ class MiniGPTWithKVCache(MiniGPT):
         """带 KV Cache 的生成"""
         self.eval()
 
-        # 第一个 token: prefill
+        # 清空 KV Cache
         for block in self.blocks:
             block.attn.k_cache = None
             block.attn.v_cache = None
@@ -483,7 +494,7 @@ class MiniGPTWithKVCache(MiniGPT):
                 ids_in = ids[:, -1:]
                 start_pos = ids.shape[1] - 1
 
-            logits, _ = self(ids_in, start_pos=start_pos)
+            logits, _ = self(ids_in, start_pos=start_pos, use_cache=True)
             logits = logits[:, -1, :] / temperature
             if top_k is not None:
                 v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
@@ -491,12 +502,6 @@ class MiniGPTWithKVCache(MiniGPT):
             probs = F.softmax(logits, dim=-1)
             next_id = torch.multinomial(probs, num_samples=1)
             ids = torch.cat([ids, next_id], dim=1)
-
-            # 更新 KV Cache
-            for block in self.blocks:
-                # 实际实现中, 应该在 attention 内部把 K, V 加到 cache
-                # 这里简化为示意
-                pass
 
         return ids
 
@@ -526,8 +531,11 @@ def benchmark_generate(use_cache=False, n_tokens=20, n_runs=10):
 t_normal = benchmark_generate(use_cache=False)
 t_cache = benchmark_generate(use_cache=True)
 print(f"  朴素生成: {t_normal:.1f} ms")
-print(f"  KV Cache: {t_cache:.1f} ms (示意)")
-print(f"  说明: 实际 KV Cache 加速比为 1.5-3x (取决于序列长度)")
+print(f"  KV Cache: {t_cache:.1f} ms")
+if t_cache < t_normal:
+    print(f"  加速比: {t_normal / t_cache:.2f}x")
+else:
+    print(f"  说明: 序列较短时 KV Cache 开销可能更大，长序列加速比可达 1.5-3x")
 
 
 # ============================================================
