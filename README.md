@@ -56,6 +56,7 @@
 | 第23课 | Distillation | 知识蒸馏：大模型教小模型 |
 | 第24课 | RLHF | 强化学习人类反馈 / GRPO |
 | 第25课 | DataPrep | 数据准备与清洗：Garbage in, garbage out |
+| 第26课 | Multimodal | 多模态：让模型看图说话 (ViT + Projector + LLM) |
 
 ## 学习路线建议
 
@@ -79,6 +80,7 @@ python lessons/lesson22_dpo.py             # 直接偏好优化
 python lessons/lesson23_distillation.py    # 知识蒸馏
 python lessons/lesson24_rlhf.py            # RLHF/GRPO
 python lessons/lesson25_data_prep.py       # 数据准备与清洗
+python lessons/lesson26_multimodal.py      # 多模态
 ```
 
 ## 依赖
@@ -123,3 +125,4 @@ pip install -r requirements.txt
 | 第23课 Distillation | trainer/train_distillation.py (KL散度 + 温度) |
 | 第24课 RLHF | trainer/train_grpo.py (奖励模型 + PPO/GRPO) |
 | 第25课 DataPrep | dataset/lm_dataset.py (数据清洗 + 去重) |
+| 第26课 Multimodal | 多模态：ViT + Projector + LLM 融合 |

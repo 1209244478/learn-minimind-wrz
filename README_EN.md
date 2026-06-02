@@ -60,6 +60,7 @@ Based on the [MiniMind](https://github.com/jingyaogong/minimind) project, this l
 | 23 | Distillation | Knowledge Distillation: big model teaches small model |
 | 24 | RLHF | RLHF / GRPO: aligning with human feedback |
 | 25 | Data Prep | Data preparation & cleaning: garbage in, garbage out |
+| 26 | Multimodal | Vision + Language: teaching the model to see (ViT + Projector + LLM) |
 
 ## Recommended Learning Paths
 
@@ -85,6 +86,7 @@ python lessons/lesson22_dpo.py             # Direct Preference Optimization
 python lessons/lesson23_distillation.py    # Knowledge Distillation
 python lessons/lesson24_rlhf.py            # RLHF/GRPO
 python lessons/lesson25_data_prep.py       # Data Preparation
+python lessons/lesson26_multimodal.py      # Multimodal
 ```
 
 **English version:**
@@ -98,6 +100,7 @@ python lessons_en/lesson22_dpo.py             # Direct Preference Optimization
 python lessons_en/lesson23_distillation.py    # Knowledge Distillation
 python lessons_en/lesson24_rlhf.py            # RLHF/GRPO
 python lessons_en/lesson25_data_prep.py       # Data Preparation
+python lessons_en/lesson26_multimodal.py      # Multimodal
 ```
 
 ## Dependencies
@@ -142,6 +145,7 @@ pip install -r requirements.txt
 | 23 Distillation | trainer/train_distillation.py (KL divergence + temperature) |
 | 24 RLHF | trainer/train_grpo.py (reward model + PPO/GRPO) |
 | 25 Data Prep | dataset/lm_dataset.py (data cleaning + deduplication) |
+| 26 Multimodal | Multimodal: ViT + Projector + LLM fusion |
 
 ## Project Structure
 
@@ -156,7 +160,8 @@ minimind-wrz-learn/
 │   ├── lesson22_dpo.py
 │   ├── lesson23_distillation.py
 │   ├── lesson24_rlhf.py
-│   └── lesson25_data_prep.py
+│   ├── lesson25_data_prep.py
+│   └── lesson26_multimodal.py
 ├── lessons_en/                 # English lessons
 │   ├── lesson00_basics.py
 │   ├── lesson01_tokenizer.py
@@ -166,7 +171,8 @@ minimind-wrz-learn/
 │   ├── lesson22_dpo.py
 │   ├── lesson23_distillation.py
 │   ├── lesson24_rlhf.py
-│   └── lesson25_data_prep.py
+│   ├── lesson25_data_prep.py
+│   └── lesson26_multimodal.py
 ├── README.md                   # Chinese README
 ├── README_EN.md                # English README (this file)
 └── requirements.txt
@@ -197,6 +203,7 @@ minimind-wrz-learn/
 - **Knowledge Distillation**: Teacher-student training with KL divergence and temperature
 - **RLHF/GRPO**: Reinforcement learning from human feedback, PPO, Group Relative Policy Optimization
 - **Data Preparation**: Cleaning, deduplication, decontamination, and data mixing strategies
+- **Multimodal**: Vision Encoder (ViT), Projector, vision-language fusion, image captioning
 
 ## Acknowledgments
 
