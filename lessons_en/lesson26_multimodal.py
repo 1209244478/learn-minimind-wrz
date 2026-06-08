@@ -104,6 +104,30 @@ class PatchEmbedding(nn.Module):
     def forward(self, x):
         # x: (B, C, H, W) → (B, n_patches, patch_dim)
         B, C, H, W = x.shape
+
+        # [unfold Step-by-Step Breakdown]
+        #
+        # Original image: (B, 3, 32, 32) — 3 channels, 32x32 pixels
+        #
+        # Step 1: x.unfold(2, 8, 8) — slice patches along height
+        #   On dim 2 (H), slide a window of size 8 with stride 8
+        #   Result: (B, 3, 4, 32, 8) — 4 height positions, each 8 rows
+        #   Explanation: 32/8=4, so height is split into 4 blocks
+        #
+        # Step 2: .unfold(3, 8, 8) — slice patches along width
+        #   On dim 3 (W), slide a window of size 8 with stride 8
+        #   Result: (B, 3, 4, 4, 8, 8) — 4x4=16 patches, each 8x8 pixels
+        #   Explanation: 32/8=4, so width is also split into 4 blocks
+        #
+        # Step 3: view(B, C, -1, 8, 8)
+        #   Result: (B, 3, 16, 8, 8) — 16 patches, each 3 channels 8x8
+        #
+        # Step 4: permute(0, 2, 3, 4, 1).view(B, 16, -1)
+        #   Move channel dim to last, then flatten
+        #   Result: (B, 16, 3x8x8) = (B, 16, 192) — 16 patches, each a 192-dim vector
+        #
+        # Analogy: Cut a photo into 16 small photos, flatten each into a vector
+
         patches = x.unfold(2, self.patch_size, self.patch_size).unfold(3, self.patch_size, self.patch_size)
         patches = patches.contiguous().view(B, C, -1, self.patch_size, self.patch_size)
         patches = patches.permute(0, 2, 3, 4, 1).contiguous().view(B, self.n_patches, -1)

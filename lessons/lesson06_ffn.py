@@ -256,12 +256,38 @@ print("""
   即：输入 x 与所有 key 计算匹配度（激活值），
   然后用匹配度加权求和对应的 value。
 
-  类比：
-    key = "这是主语位置" → value = "应该填入名词的特征"
-    key = "这是否定位置" → value = "应该反转情感的特征"
+【逐步拆解：FFN 为什么是 Key-Value Memory？】
 
-  Attention 是"词与词"之间的记忆查找
-  FFN 是"输入与知识"之间的记忆查找
+  第1步：看 FFN 的数学形式
+    FFN(x) = W_down · σ(W_up · x)
+
+  第2步：把矩阵拆成行向量
+    W_up 的第 i 行 = key_i（一个"模式检测器"）
+    W_down 的第 i 列 = value_i（一个"知识存储"）
+
+  第3步：展开计算
+    h = W_up · x  →  h_i = key_i · x  （输入与第i个key的匹配度）
+    a = σ(h)      →  a_i = σ(key_i · x)（匹配度过激活函数，决定"激活多少"）
+    y = W_down · a →  y = Σ a_i · value_i（按激活程度加权求和value）
+
+  第4步：直觉理解
+    key_i = "这是主语位置"的模式 → value_i = "应该填入名词的特征"
+    key_j = "这是否定位置"的模式 → value_j = "应该反转情感的特征"
+
+    输入 x 如果匹配 key_i，就激活 value_i
+    输入 x 如果匹配 key_j，就激活 value_j
+    最终输出 = 所有被激活的 value 的加权和
+
+  第5步：与 Attention 的对比
+    Attention：Q·K^T 找"哪个词和我相关" → 加权 V
+    FFN：      x·key_i 找"哪个知识和我相关" → 加权 value_i
+
+    Attention 是"词与词"之间的记忆查找（动态的，每次输入不同）
+    FFN 是"输入与知识"之间的记忆查找（静态的，权重是学到的知识）
+
+  类比：
+    Attention = 你在会议上听别人发言，选择关注谁
+    FFN = 你在图书馆查资料，选择读哪些书
 """)
 
 

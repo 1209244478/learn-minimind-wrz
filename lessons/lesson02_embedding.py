@@ -317,6 +317,136 @@ class MiniMindEmbeddings(nn.Module):
 
 
 # ============================================================
+# 第8部分（新增）：Embedding 是如何被训练的？
+# ============================================================
+print("\n" + "=" * 60)
+print("第8部分：Embedding 是如何被训练的？")
+print("=" * 60)
+
+print("""
+前面的演示中，Embedding 是随机初始化的，没有任何语义。
+你一定在想：随机向量怎么就"学会了"语义？
+
+答案是：通过训练！反向传播会更新 Embedding 矩阵的每一行。
+
+训练过程：
+  1. 初始化：每个 token 的向量是随机的（没有任何意义）
+  2. 前向传播：用 Embedding 查表，得到向量，送入模型计算 loss
+  3. 反向传播：计算 loss 对 Embedding 矩阵的梯度
+  4. 参数更新：梯度下降修改 Embedding 矩阵中"被用到的那些行"
+
+关键理解：
+  - 每次训练，只有当前 batch 中出现的 token 的 Embedding 会被更新
+  - 没出现的 token 的向量不变
+  - 经常一起出现的词（如"猫"和"狗"），它们的梯度方向相似
+  - 训练久了，语义相近的词自然聚集在一起
+
+类比：
+  初始化 = 一群陌生人随机站在操场上
+  训练   = 每次任务后，相关的人被拉到一起
+  训练久了 = 认识的人自然聚成小团体
+""")
+
+# 演示：训练一个简单的 Embedding，观察语义变化
+torch.manual_seed(42)
+
+# 构造一个简单的"语言模型"：输入两个词，预测第三个词
+# 训练数据：(词1, 词2) → 词3
+# 目的：让模型学到"猫"和"狗"是动物，"苹果"和"香蕉"是水果
+
+vocab = ["猫", "狗", "苹果", "香蕉", "吃", "喜欢", "是", "动物", "水果"]
+vocab_size = len(vocab)
+embed_dim = 8
+
+# 训练数据：让语义相近的词经常一起出现
+training_data = [
+    ("猫", "是", "动物"), ("狗", "是", "动物"),
+    ("苹果", "是", "水果"), ("香蕉", "是", "水果"),
+    ("猫", "喜欢", "吃"), ("狗", "喜欢", "吃"),
+    ("苹果", "喜欢", "吃"), ("香蕉", "喜欢", "吃"),
+]
+
+char2id = {c: i for i, c in enumerate(vocab)}
+id2char = {i: c for c, i in char2id.items()}
+
+# 创建 Embedding 和简单的预测头
+embedding = nn.Embedding(vocab_size, embed_dim)
+lm_head = nn.Linear(embed_dim, vocab_size, bias=False)
+
+optimizer = torch.optim.Adam(list(embedding.parameters()) + list(lm_head.parameters()), lr=0.05)
+
+# 记录训练前的相似度
+def get_sim_matrix(emb, words_of_interest):
+    """计算指定词之间的余弦相似度矩阵"""
+    ids = [char2id[w] for w in words_of_interest]
+    vecs = emb.weight[ids].detach()
+    sim = torch.zeros(len(ids), len(ids))
+    for i in range(len(ids)):
+        for j in range(len(ids)):
+            sim[i, j] = cosine_similarity(vecs[i], vecs[j])
+    return sim
+
+words_of_interest = ["猫", "狗", "苹果", "香蕉"]
+
+print("训练前的词向量相似度（随机，无语义）：")
+sim_before = get_sim_matrix(embedding, words_of_interest)
+print(f"        猫     狗    苹果   香蕉")
+for i, w in enumerate(words_of_interest):
+    row = "  ".join(f"{sim_before[i, j]:6.3f}" for j in range(len(words_of_interest)))
+    print(f"  {w}  {row}")
+print("  → 所有相似度都接近0，没有语义规律")
+
+# 训练
+print("\n开始训练...")
+for epoch in range(100):
+    total_loss = 0
+    for w1, w2, w3 in training_data:
+        # 输入：前两个词的 Embedding 平均
+        ids = torch.tensor([char2id[w1], char2id[w2]])
+        vecs = embedding(ids)           # (2, embed_dim)
+        avg_vec = vecs.mean(dim=0)      # (embed_dim,)
+
+        # 预测第三个词
+        logits = lm_head(avg_vec)        # (vocab_size,)
+        target = torch.tensor(char2id[w3])
+
+        loss = F.cross_entropy(logits.unsqueeze(0), target.unsqueeze(0))
+        total_loss += loss.item()
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    if (epoch + 1) % 25 == 0:
+        print(f"  Epoch {epoch+1:3d}, Loss: {total_loss:.4f}")
+
+# 训练后的相似度
+print("\n训练后的词向量相似度（学到了语义！）：")
+sim_after = get_sim_matrix(embedding, words_of_interest)
+print(f"        猫     狗    苹果   香蕉")
+for i, w in enumerate(words_of_interest):
+    row = "  ".join(f"{sim_after[i, j]:6.3f}" for j in range(len(words_of_interest)))
+    print(f"  {w}  {row}")
+print("  → 猫-狗相似度高（都是动物），苹果-香蕉相似度高（都是水果）")
+print("  → 猫-苹果相似度低（跨类别）")
+print("  这就是 Embedding 通过训练学到语义的过程！")
+
+print("""
+总结：Embedding 训练的本质
+  ┌──────────────────────────────────────────────────┐
+  │  初始：随机向量，没有意义                          │
+  │  训练：反向传播更新 Embedding 矩阵                 │
+  │  结果：经常共现的词 → 向量靠近                     │
+  │       语义相近的词 → 向量相似                      │
+  │       语义相反的词 → 向量远离                      │
+  │                                                  │
+  │  关键：Embedding 的"语义"不是手动设定的，           │
+  │        而是模型在训练过程中自动学到的！              │
+  └──────────────────────────────────────────────────┘
+""")
+
+
+# ============================================================
 # 练习题
 # ============================================================
 print("\n" + "=" * 60)

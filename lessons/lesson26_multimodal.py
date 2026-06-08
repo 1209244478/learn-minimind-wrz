@@ -103,7 +103,30 @@ class PatchEmbedding(nn.Module):
     def forward(self, x):
         # x: (B, C, H, W) → (B, n_patches, patch_dim)
         B, C, H, W = x.shape
-        # unfold: 把每个 patch 展平
+
+        # 【unfold 逐步拆解】
+        #
+        # 原始图像: (B, 3, 32, 32) — 3通道，32×32像素
+        #
+        # 第1步：x.unfold(2, 8, 8) — 沿高度方向切 patch
+        #   在第2维(H)上，用大小8、步长8的窗口滑动
+        #   结果: (B, 3, 4, 32, 8) — 4个高度位置，每个8行
+        #   解释：32/8=4，所以高度方向切成4块
+        #
+        # 第2步：.unfold(3, 8, 8) — 沿宽度方向切 patch
+        #   在第3维(W)上，用大小8、步长8的窗口滑动
+        #   结果: (B, 3, 4, 4, 8, 8) — 4×4=16个patch，每个8×8像素
+        #   解释：32/8=4，所以宽度方向也切成4块
+        #
+        # 第3步：view(B, C, -1, 8, 8)
+        #   结果: (B, 3, 16, 8, 8) — 16个patch，每个3通道8×8
+        #
+        # 第4步：permute(0, 2, 3, 4, 1).view(B, 16, -1)
+        #   把通道维移到最后，然后展平
+        #   结果: (B, 16, 3×8×8) = (B, 16, 192) — 16个patch，每个192维向量
+        #
+        # 类比：把一张照片剪成16张小照片，每张小照片展平成一个向量
+
         patches = x.unfold(2, self.patch_size, self.patch_size).unfold(3, self.patch_size, self.patch_size)
         # (B, C, H/ps, W/ps, ps, ps) → (B, n_patches, patch_dim)
         patches = patches.contiguous().view(B, C, -1, self.patch_size, self.patch_size)

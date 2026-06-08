@@ -299,6 +299,38 @@ print(f"GQA: {num_heads}个Q头, {num_kv_heads_gqa}个KV头, 参数量={gqa_para
 print(f"GQA 参数量减少: {(1 - gqa_params/mha_params)*100:.1f}%")
 print(f"\nGQA 的优势:")
 print(f"  1. KV 缓存更小（只需存 {num_kv_heads_gqa} 组而非 {num_kv_heads_mha} 组）")
+
+# 【新增】GQA 的具体数字对比：KV Cache 节省了多少？
+print("\n" + "-" * 50)
+print("【GQA 的具体数字对比：KV Cache 节省了多少？】")
+print("-" * 50)
+print("""
+以 LLaMA-2-70B 为例（类似 MiniMind 的架构）：
+  hidden_size = 8192
+  num_heads (Q) = 64
+  head_dim = 128
+
+  MHA（所有头独立）：
+    KV 头数 = 64
+    每个token的KV Cache = 2 × 64 × 128 = 16,384 个float16
+    = 32 KB / token
+
+  GQA（8组KV头）：
+    KV 头数 = 8
+    每个token的KV Cache = 2 × 8 × 128 = 2,048 个float16
+    = 4 KB / token
+    节省 = (64-8)/64 = 87.5%！
+
+  实际影响：
+    生成4096个token时：
+    MHA: 4096 × 32 KB = 128 MB（仅KV Cache）
+    GQA: 4096 × 4 KB  =  16 MB（仅KV Cache）
+    → 节省 112 MB，可以多生成7倍的token！
+
+  MiniMind 的情况：
+    num_heads = 12, num_kv_heads = 4
+    KV Cache 节省 = (12-4)/12 = 66.7%
+""")
 print(f"  2. 推理更快（KV 缓存读取量减少 {(1 - num_kv_heads_gqa/num_kv_heads_mha)*100:.0f}%）")
 print(f"  3. 效果接近 MHA（共享的KV头仍能捕捉关键信息）")
 

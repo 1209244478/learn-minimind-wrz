@@ -136,6 +136,29 @@ YaRN's approach:
      - Mid-frequency: Smooth transition
      - Low-frequency: Full scaling
 
+  [Frequency Group Intuition — Clock Analogy]
+
+    Think of RoPE frequencies like a clock with three hands:
+
+    Second hand (high frequency, wavelength < 512):
+      Rotates fast, captures fine-grained position differences
+      If you slow it down (scale it), you lose precision
+      → YaRN: Keep as-is (pure extrapolation, no scaling)
+
+    Hour hand (low frequency, wavelength > 2048):
+      Rotates slowly, captures coarse position differences
+      When sequence length increases, it needs to cover more range
+      → YaRN: Scale the frequency (pure interpolation)
+
+    Minute hand (mid frequency, 512 < wavelength < 2048):
+      Between the two extremes
+      → YaRN: Smooth transition between extrapolation and interpolation
+
+    Why this works:
+      High frequencies are already distinctive enough at long distances
+      Low frequencies need help to cover the extended range
+      Mid frequencies need a gradual transition to avoid discontinuity
+
   2. For each dimension d, compute:
      h(d) = scaling factor (dimension-dependent)
 

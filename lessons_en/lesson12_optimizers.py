@@ -380,9 +380,32 @@ print("=" * 60)
 print("""
 Muon (Momentum Orthogonalized by Newton-schulz) — A new optimizer proposed in 2024
 
-Core idea:
-  Apply Newton-Schulz orthogonalization to gradients
-  Make update directions more "orthogonal", training more efficient
+Core idea (one-sentence version):
+  Muon = Momentum + Orthogonalization
+  Make update directions perpendicular to each other, training more efficient
+
+[Intuition: What is "Orthogonalization"?]
+
+  Imagine you're finding the lowest point in a valley (optimization):
+
+  Regular gradient descent:
+    Take a step in the steepest direction each time
+    Problem: if the valley is a narrow ellipse, you oscillate back and forth
+    → Too much movement north-south, too little east-west
+
+  After orthogonalization:
+    Equalize the step size in "north-south" and "east-west" directions
+    → No more oscillation, head straight for the lowest point
+    → This is the effect of orthogonalization!
+
+  Mathematically:
+    Gradient matrix singular values are uneven (directions are imbalanced)
+    Orthogonalization = make all directions have the same "step size"
+    → Each direction contributes equally, learning is more balanced
+
+  Analogy:
+    Regular optimization = walking with a big left step, small right step (wobbling)
+    Orthogonalization    = equal-sized steps with both feet (walking straight)
 
 Why orthogonalization?
   - Gradient matrix singular value distribution is uneven
@@ -398,6 +421,7 @@ Formula:
 Newton-Schulz orthogonalization:
   Use 5 matrix multiplication iterations to convert a matrix into an orthogonal matrix
   No SVD decomposition needed, fast speed
+  (You don't need to understand the math details, just know it makes directions more uniform)
 
 Why is Muon powerful?
   - Training speed 2x faster than AdamW

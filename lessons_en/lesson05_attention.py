@@ -303,6 +303,31 @@ print(f"  1. Smaller KV cache (only need to store {num_kv_heads_gqa} groups inst
 print(f"  2. Faster inference (KV cache reads reduced by {(1 - num_kv_heads_gqa/num_kv_heads_mha)*100:.0f}%)")
 print(f"  3. Effectiveness close to MHA (shared KV heads still capture key information)")
 
+# [NEW] Concrete KV Cache savings comparison
+print("\n" + "-" * 50)
+print("[KV Cache Memory Savings — Concrete Numbers]")
+print("-" * 50)
+print("""
+LLaMA-2-70B KV Cache comparison (hidden_dim=8192, head_dim=128):
+
+  MHA (64 KV heads):
+    KV cache per token = 64 heads × 128 dim × 2 (K+V) × 2 bytes (fp16)
+                       = 32 KB / token
+    For 4096 tokens: 32 KB × 4096 = 128 MB
+
+  GQA (8 KV heads):
+    KV cache per token = 8 heads × 128 dim × 2 (K+V) × 2 bytes (fp16)
+                       = 4 KB / token
+    For 4096 tokens: 4 KB × 4096 = 16 MB
+
+  Savings: 87.5% — can generate 7x more tokens with the same memory!
+
+  MiniMind KV Cache comparison (hidden_dim=512, head_dim=64):
+    MHA (8 KV heads):  8 × 64 × 2 × 2 = 2 KB/token
+    GQA (2 KV heads):  2 × 64 × 2 × 2 = 0.5 KB/token
+    Savings: 75%
+""")
+
 
 # ============================================================
 # Step 5.5: QK-Norm — Key Technique for Stable Attention Training

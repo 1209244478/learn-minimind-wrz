@@ -45,6 +45,30 @@ Core intuition:
   Show the model two responses to the same question,
   teach it to prefer the better one.
   Use a reference model (frozen SFT) as constraint to prevent drifting.
+
+[DPO vs RLHF: Why use DPO?]
+
+  Imagine you're a teacher training students to write good essays:
+
+  RLHF approach (complex):
+    1. First train a "scoring teacher" (reward model) to grade essays
+    2. Student writes essay -> scoring teacher grades -> student adjusts
+    3. Problem: needs 4 models (policy, reference, reward, value)
+    4. Training is unstable, student may learn to "game the score"
+
+  DPO approach (simple):
+    1. Just show the student two essays: "this one is good, that one is bad"
+    2. Student adjusts to be more like the good one
+    3. Only needs 2 models (policy + reference)
+    4. Training is stable, no "gaming"
+
+  Why can DPO replace RLHF?
+    Mathematically, DPO and RLHF optimize the same objective!
+    RLHF: max E[r(x,y)]  (maximize reward)
+    DPO: max E[log sigma(beta * (log_ratio_chosen - log_ratio_rejected))]  (directly optimize preference)
+
+    DPO just expresses the "reward function" implicitly via log probability ratios,
+    without needing to explicitly train a reward model.
 """
 
 print("=" * 70)

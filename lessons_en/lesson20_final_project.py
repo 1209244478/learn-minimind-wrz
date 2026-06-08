@@ -818,6 +818,32 @@ print("""
   b) On a laptop (16GB RAM, no GPU)
   c) On a server (8x A100)
   What quantization and deployment strategy for each?
+
+═══════════════════════════════════════════
+[Hands-On Experiments: Try It Yourself!]
+═══════════════════════════════════════════
+
+  Experiment 1: Change n_layers from 4 to 2, observe loss changes
+    → Fewer layers = smaller model capacity, loss may be higher
+
+  Experiment 2: Change dim from 512 to 256, observe generation quality
+    → Half the dimensions = ~4x fewer parameters, generation may be worse
+
+  Experiment 3: Change training epochs from 1000 to 100, observe results
+    → Under-trained, model hasn't learned enough
+
+  Experiment 4: Change learning rate from 3e-4 to 1e-2, observe training
+    → Too large LR, loss may oscillate or even NaN
+
+  Experiment 5: Change temperature from 0.8 to 0.1 and 2.0, compare outputs
+    → 0.1: Near-deterministic output (repetitive, conservative)
+    → 2.0: Very random (may produce gibberish)
+
+  Experiment 6: Change n_kv_heads from 2 to 8 (=n_heads), compare KV Cache size
+    → GQA → MHA, KV Cache grows but quality may improve
+
+  Each experiment only requires changing one number and re-running!
+  This is the best way to learn LLMs: try it, see the results.
 """)
 
 

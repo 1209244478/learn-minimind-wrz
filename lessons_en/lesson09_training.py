@@ -549,6 +549,84 @@ print("""
   -> Simulate large batch with small GPU memory, equivalent training effect
 """)
 
+# [NEW] End-to-End Training → Generation Demo
+print("\n" + "-" * 50)
+print("[End-to-End Demo: Train a TinyGPT and Generate Text]")
+print("-" * 50)
+
+# TinyGPT: a minimal GPT model for demonstration
+class TinyGPT(nn.Module):
+    def __init__(self, vocab_size, embed_dim=32, n_heads=2, n_layers=2):
+        super().__init__()
+        self.tok_emb = nn.Embedding(vocab_size, embed_dim)
+        self.pos_emb = nn.Embedding(64, embed_dim)
+        self.blocks = nn.ModuleList([
+            nn.TransformerEncoderLayer(
+                d_model=embed_dim, nhead=n_heads,
+                dim_feedforward=embed_dim*4, dropout=0.0, batch_first=True
+            ) for _ in range(n_layers)
+        ])
+        self.ln_f = nn.LayerNorm(embed_dim)
+        self.lm_head = nn.Linear(embed_dim, vocab_size, bias=False)
+
+    def forward(self, x, targets=None):
+        B, T = x.shape
+        tok = self.tok_emb(x)
+        pos = self.pos_emb(torch.arange(T, device=x.device))
+        x = tok + pos
+        for block in self.blocks:
+            x = block(x)
+        x = self.ln_f(x)
+        logits = self.lm_head(x)
+        if targets is not None:
+            loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1))
+            return logits, loss
+        return logits, None
+
+    def generate(self, idx, max_new_tokens=20, temperature=1.0):
+        for _ in range(max_new_tokens):
+            idx_cond = idx[:, -64:]
+            logits, _ = self(idx_cond)
+            logits = logits[:, -1, :] / max(temperature, 1e-8)
+            probs = F.softmax(logits, dim=-1)
+            idx_next = torch.multinomial(probs, num_samples=1)
+            idx = torch.cat([idx, idx_next], dim=1)
+        return idx
+
+# Train on simple data
+tiny_vocab_size = 50
+tiny_model = TinyGPT(tiny_vocab_size)
+tiny_optimizer = torch.optim.AdamW(tiny_model.parameters(), lr=1e-3)
+
+# Simple training data: sequences of token IDs
+torch.manual_seed(42)
+train_data = torch.randint(0, tiny_vocab_size, (32, 16))  # 32 samples, length 16
+
+print("Training TinyGPT for 100 steps...")
+for step in range(100):
+    x = train_data[:, :-1]
+    y = train_data[:, 1:]
+    logits, loss = tiny_model(x, y)
+    tiny_optimizer.zero_grad()
+    loss.backward()
+    tiny_optimizer.step()
+    if (step + 1) % 50 == 0:
+        print(f"  Step {step+1}: loss = {loss.item():.4f}")
+
+# Generate text
+print("\nGenerating text from TinyGPT:")
+start_ids = torch.randint(0, tiny_vocab_size, (1, 4))
+generated = tiny_model.generate(start_ids, max_new_tokens=10, temperature=0.8)
+print(f"  Input IDs: {start_ids.tolist()[0]}")
+print(f"  Generated IDs: {generated.tolist()[0]}")
+print("""
+  This demonstrates the complete end-to-end workflow:
+    1. Define model architecture (TinyGPT)
+    2. Prepare training data (token ID sequences)
+    3. Train with forward → loss → backward → update loop
+    4. Generate new text by sampling from the trained model
+""")
+
 
 # ============================================================
 # Exercises

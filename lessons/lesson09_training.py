@@ -578,6 +578,170 @@ print("""
 
 
 # ============================================================
+# 端到端演示：从数据到训练到生成（把前9课串起来！）
+# ============================================================
+print("\n" + "=" * 60)
+print("端到端演示：从数据到训练到生成")
+print("=" * 60)
+
+print("""
+前面我们分别学了：Tokenizer、Embedding、RMSNorm、RoPE、Attention、FFN、Block、GPT、训练循环
+现在把它们全部串起来，做一个完整的"训练→生成"流程！
+
+完整流程：
+  1. 准备数据（字符级 Tokenizer）
+  2. 创建模型（简化版 GPT）
+  3. 训练模型（训练循环）
+  4. 生成文本（自回归生成）
+""")
+
+# --- 第1步：准备数据 ---
+print("--- 第1步：准备数据 ---")
+
+# 训练语料（很小的数据集，用于演示）
+train_text = "猫吃鱼狗吃肉鸟吃虫鱼游水狗跑路鸟飞翔猫抓鼠狗看门鸟唱歌"
+print(f"训练语料: '{train_text}' ({len(train_text)} 字符)")
+
+# 字符级 Tokenizer
+chars = sorted(set(train_text))
+vocab_size = len(chars)
+char2id = {c: i for i, c in enumerate(chars)}
+id2char = {i: c for c, i in char2id.items()}
+print(f"词表大小: {vocab_size}, 词表: {chars}")
+
+# 编码整个语料
+data_ids = [char2id[c] for c in train_text]
+data_tensor = torch.tensor(data_ids, dtype=torch.long)
+print(f"编码后: {data_ids[:20]}...")
+
+# 构造训练样本：(输入, 目标) — 滑动窗口
+seq_len = 8  # 每次输入8个字符，预测第9个
+
+def get_batch(data, batch_size=4):
+    """随机采样一个 batch"""
+    ix = torch.randint(len(data) - seq_len, (batch_size,))
+    x = torch.stack([data[i:i+seq_len] for i in ix])
+    y = torch.stack([data[i+1:i+seq_len+1] for i in ix])
+    return x, y
+
+x, y = get_batch(data_tensor)
+print(f"输入 shape: {x.shape}  (batch={x.shape[0]}, seq_len={x.shape[1]})")
+print(f"目标 shape: {y.shape}")
+print(f"示例: 输入 '{''.join(id2char[i] for i in x[0].tolist())}' → 目标 '{''.join(id2char[i] for i in y[0].tolist())}'")
+print("  注意：目标 = 输入左移1位（下一个词预测）")
+
+# --- 第2步：创建简化版 GPT ---
+print("\n--- 第2步：创建简化版 GPT ---")
+
+class TinyGPT(nn.Module):
+    """极简 GPT，用于演示完整流程"""
+    def __init__(self, vocab_size, embed_dim=32, n_heads=2, n_layers=2):
+        super().__init__()
+        self.embed_dim = embed_dim
+        self.tok_emb = nn.Embedding(vocab_size, embed_dim)
+        self.pos_emb = nn.Embedding(64, embed_dim)  # 最多64个位置
+        self.blocks = nn.ModuleList([
+            nn.TransformerEncoderLayer(
+                d_model=embed_dim, nhead=n_heads,
+                dim_feedforward=embed_dim * 4,
+                dropout=0.0, batch_first=True, norm_first=True
+            ) for _ in range(n_layers)
+        ])
+        self.norm = nn.LayerNorm(embed_dim)
+        self.lm_head = nn.Linear(embed_dim, vocab_size, bias=False)
+        self.tok_emb.weight = self.lm_head.weight  # 权重共享
+
+    def forward(self, x, targets=None):
+        B, T = x.shape
+        tok = self.tok_emb(x)              # (B, T, embed_dim)
+        pos = self.pos_emb(torch.arange(T, device=x.device))  # (T, embed_dim)
+        h = tok + pos                       # 加位置编码
+        for block in self.blocks:
+            h = block(h)                    # Transformer 层
+        h = self.norm(h)                    # 最终归一化
+        logits = self.lm_head(h)            # (B, T, vocab_size)
+
+        loss = None
+        if targets is not None:
+            loss = F.cross_entropy(
+                logits.view(-1, logits.size(-1)),
+                targets.view(-1),
+            )
+        return logits, loss
+
+    @torch.no_grad()
+    def generate(self, idx, max_new_tokens=20, temperature=1.0):
+        """自回归生成"""
+        self.eval()
+        for _ in range(max_new_tokens):
+            # 只取最后 seq_len 个 token（防止超出位置编码范围）
+            idx_cond = idx[:, -seq_len:]
+            logits, _ = self(idx_cond)
+            logits = logits[:, -1, :] / max(temperature, 1e-8)
+            probs = F.softmax(logits, dim=-1)
+            next_id = torch.multinomial(probs, num_samples=1)
+            idx = torch.cat([idx, next_id], dim=1)
+        return idx
+
+torch.manual_seed(42)
+tiny_gpt = TinyGPT(vocab_size, embed_dim=32, n_heads=2, n_layers=2)
+total_params = sum(p.numel() for p in tiny_gpt.parameters())
+print(f"模型参数量: {total_params:,}")
+print(f"模型结构: Embedding → {2}×TransformerLayer → LayerNorm → LM Head")
+
+# --- 第3步：训练模型 ---
+print("\n--- 第3步：训练模型 ---")
+
+optimizer = torch.optim.AdamW(tiny_gpt.parameters(), lr=3e-4, weight_decay=0.01)
+
+print("训练中...")
+for epoch in range(200):
+    x, y = get_batch(data_tensor, batch_size=8)
+    logits, loss = tiny_gpt(x, targets=y)
+    optimizer.zero_grad()
+    loss.backward()
+    torch.nn.utils.clip_grad_norm_(tiny_gpt.parameters(), 1.0)
+    optimizer.step()
+
+    if (epoch + 1) % 50 == 0:
+        print(f"  Epoch {epoch+1:3d}, Loss: {loss.item():.4f}")
+
+print("训练完成！")
+
+# --- 第4步：生成文本 ---
+print("\n--- 第4步：生成文本 ---")
+
+tiny_gpt.eval()
+# 给一个开头，让模型续写
+prompts = ["猫", "狗", "鸟"]
+for prompt in prompts:
+    start_id = torch.tensor([[char2id[prompt]]], dtype=torch.long)
+    generated = tiny_gpt.generate(start_id, max_new_tokens=15, temperature=0.8)
+    text = ''.join(id2char[int(t)] for t in generated[0])
+    print(f"  开头'{prompt}' → 生成: '{text}'")
+
+print("""
+完整流程回顾：
+  ┌──────────────────────────────────────────────────────────┐
+  │  第1步: 准备数据                                          │
+  │    原始文本 → Tokenizer 编码 → 训练样本 (输入, 目标)       │
+  │                                                          │
+  │  第2步: 创建模型                                          │
+  │    Embedding + Position + Transformer + LM Head           │
+  │                                                          │
+  │  第3步: 训练模型                                          │
+  │    前向传播 → 计算Loss → 反向传播 → 更新参数 → 重复        │
+  │                                                          │
+  │  第4步: 生成文本                                          │
+  │    给开头 → 模型预测下一个词 → 拼接 → 再预测 → 循环        │
+  │                                                          │
+  │  这就是 GPT 的全部！从第1课到第9课，你学完了整个流程。       │
+  │  后面的课程会在这个基础上添加更多高级功能。                   │
+  └──────────────────────────────────────────────────────────┘
+""")
+
+
+# ============================================================
 # 练习题
 # ============================================================
 print("\n" + "=" * 60)

@@ -50,6 +50,36 @@ print("=" * 70)
 print("Lesson 25: Data Preparation & Cleaning")
 print("=" * 70)
 
+# [NEW] Real data sample showcase
+print("\n" + "-" * 50)
+print("[Three Types of Training Data — Real Samples]")
+print("-" * 50)
+print("""
+1. Pre-training data (plain text, model learns "what word comes next"):
+   ─────────────────────────────────────────
+   {"text": "Natural language processing is an important direction in the field of artificial intelligence. It studies how computers can understand and generate human language. Applications include machine translation, text summarization, question answering systems, etc. In recent years, large language models based on Transformers have achieved breakthrough progress in NLP."}
+   ─────────────────────────────────────────
+   Feature: Plain text, no Q&A format, model learns statistical patterns of language
+
+2. SFT data (instruction-response format, model learns "follow instructions"):
+   ─────────────────────────────────────────
+   {"messages": [
+     {"role": "system", "content": "You are a helpful AI assistant."},
+     {"role": "user", "content": "Please explain what gradient descent is"},
+     {"role": "assistant", "content": "Gradient descent is an optimization algorithm used to minimize a loss function. It updates parameters along the negative gradient direction of the loss function, taking one step at a time, gradually approaching the optimal solution. Formula: θ = θ - α·∇L(θ), where α is the learning rate and ∇L is the gradient."}
+   ]}
+   ─────────────────────────────────────────
+   Feature: Has clear "instruction" and "response", model learns to follow instructions
+
+3. DPO data (preference pairs, model learns "what is a good response"):
+   ─────────────────────────────────────────
+   {"prompt": "How to learn programming?",
+    "chosen": "I recommend starting with Python. It has clean syntax and rich community resources. Start with the official tutorial, learn while practicing, and gradually master basic concepts before trying small projects.",
+    "rejected": "Programming is hard, I don't recommend learning it."}
+   ─────────────────────────────────────────
+   Feature: Same question has good and bad responses, model learns to prefer the good one
+""")
+
 # ============================================================================
 # 2. Data Cleaning
 # ============================================================================

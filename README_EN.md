@@ -15,6 +15,18 @@ No prerequisites required — from Python/PyTorch basics to full LLM deployment.
 
 Based on the [MiniMind](https://github.com/jingyaogong/minimind) project, this learning repo breaks down every component of a small LLM into self-contained, runnable lessons.
 
+## Project Highlights
+
+- **Truly beginner-friendly** — Lesson 0 starts with "what is deep learning?", explains terminal, pip, import, and walks you through training your first model
+- **Each lesson runs independently** — No GPU needed, no data to download, just `python lesson00.py` and go
+- **Explains like you're five** — Every concept has intuitive analogy + math derivation + code implementation + running results, four layers of understanding
+- **Bilingual** — `lessons/` in Chinese + `lessons_en/` in English, fully synchronized content
+- **Complete coverage** — From Tokenizer to Multimodal, from pre-training to RLHF, 26 lessons cover the full LLM pipeline
+- **Maps to MiniMind** — Each lesson maps to the corresponding MiniMind source file, so you can read the real code after learning
+- **Rich intuitive analogies** — "Teaching a child to recognize cats" for deep learning, "clock" for RoPE frequency groups, "home renovation" for LoRA, "library" for FFN
+- **Concrete numbers** — GQA saves 87.5% KV Cache, LoRA needs only 0.1% parameters, MoE router collapse before/after comparison
+- **End-to-end training demos** — Lesson 0 trains your first model, Lesson 9 trains TinyGPT, Lesson 20 trains a complete MiniGPT
+
 ## Core Curriculum (Lessons 0–10) — Required, in order
 
 | Lesson | Topic | Description |

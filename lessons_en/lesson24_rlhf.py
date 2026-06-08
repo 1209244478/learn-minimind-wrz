@@ -227,6 +227,33 @@ Core idea:
   No separate reward model needed!
   Generate multiple responses per prompt, use group-relative ranking as reward.
 
+[GRPO Step-by-Step Example]
+
+  Prompt: "What is 2 + 3?"
+
+  Step 1: Generate G=4 responses
+    Response 1: "2 + 3 = 5"     → reward = 1.0 (correct)
+    Response 2: "2 + 3 = 6"     → reward = 0.0 (wrong)
+    Response 3: "The answer is 5" → reward = 0.8 (correct but verbose)
+    Response 4: "I don't know"   → reward = 0.0 (refused)
+
+  Step 2: Calculate group statistics
+    mean = (1.0 + 0.0 + 0.8 + 0.0) / 4 = 0.45
+    std  = 0.45
+
+  Step 3: Normalize to get advantages
+    A_1 = (1.0 - 0.45) / 0.45 = +1.22  → better than average, boost it
+    A_2 = (0.0 - 0.45) / 0.45 = -1.00  → worse than average, suppress it
+    A_3 = (0.8 - 0.45) / 0.45 = +0.78  → better than average, boost it
+    A_4 = (0.0 - 0.45) / 0.45 = -1.00  → worse than average, suppress it
+
+  Step 4: Update policy
+    Increase probability of responses with positive advantage
+    Decrease probability of responses with negative advantage
+
+  Key insight: GRPO doesn't need absolute scores, only relative ranking within a group!
+  This means you can use simple rules (e.g., "is the answer correct?") instead of a reward model.
+
 Pipeline:
   1. For each prompt, policy generates G responses
   2. Score each response using rules/models

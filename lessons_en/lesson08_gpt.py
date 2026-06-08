@@ -350,6 +350,27 @@ print(f"Total:     {total_params:>10,}")
 print(f"\n-> Transformer Blocks account for the vast majority of parameters")
 print(f"-> Weight sharing saves {emb_params:,} parameters")
 
+# [NEW] Per-Block parameter breakdown
+print("\n" + "-" * 50)
+print("[Per-Block Parameter Breakdown]")
+print("-" * 50)
+if len(model.layers) > 0:
+    block = model.layers[0]
+    attn_params = sum(p.numel() for p in block.attention.parameters())
+    ffn_params = sum(p.numel() for p in block.feed_forward.parameters())
+    norm_params_block = sum(p.numel() for p in block.attention_norm.parameters()) + \
+                        sum(p.numel() for p in block.ffn_norm.parameters())
+    block_total = attn_params + ffn_params + norm_params_block
+
+    print(f"  Attention:     {attn_params:>10,} ({attn_params/block_total*100:.1f}%)")
+    print(f"    - Q/K/V/O projections: 4 x (hidden x hidden) = {4 * 512 * 512:,}")
+    print(f"  FFN:           {ffn_params:>10,} ({ffn_params/block_total*100:.1f}%)")
+    print(f"    - gate/up/down: 3 x (hidden x intermediate) = {3 * 512 * 1408:,}")
+    print(f"  RMSNorm (x2):  {norm_params_block:>10,} ({norm_params_block/block_total*100:.1f}%)")
+    print(f"  Block total:   {block_total:>10,}")
+    print(f"\n  -> FFN params > Attention params (because intermediate_size > hidden_size)")
+    print(f"  -> This is the typical Transformer ratio: FFN ~2/3, Attention ~1/3")
+
 
 # ============================================================
 # Step 6: Model Scale Comparison

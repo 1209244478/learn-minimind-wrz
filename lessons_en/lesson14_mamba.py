@@ -9,6 +9,29 @@ Core innovations:
   2. Selective mechanism (Selective SSM) — lets the model "filter" important info
   3. Linear complexity O(N) — beats Attention's O(N²)
 
+[SSM vs Attention — Intuition Analogy]
+
+  Attention = A meeting where everyone can talk directly to everyone else
+    - Rich information: each person can ask anyone a question
+    - But slow: N people → N² conversations
+    - Memory: must remember all N² conversation records
+
+  SSM = A meeting where each person only hears the previous person's summary
+    - Fast: N people → N conversations (linear!)
+    - Memory efficient: only need to pass along one summary
+    - But lossy: information gets compressed at each step
+
+  Mamba = SSM + Selective mechanism
+    - Like SSM, but with a "smart filter"
+    - Important information: remember more (large state update)
+    - Unimportant information: remember less (small state update)
+    - Best of both worlds: fast like SSM, smart like Attention
+
+  Analogy:
+    Attention = Reading every page of a book in detail (thorough but slow)
+    SSM = Reading only the chapter summaries (fast but misses details)
+    Mamba = Reading summaries, but going back to read important chapters in full
+
 This lesson covers:
   1. What is a State Space Model
   2. How Selective Scan works

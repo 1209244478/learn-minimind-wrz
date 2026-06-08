@@ -90,6 +90,32 @@ print("\n" + "=" * 60)
 print("Experiment 3: Different Dimensions Use Different Frequencies")
 print("=" * 60)
 
+print("""
+[From 2D to High-Dimensional: Grouped Rotation Explained]
+
+  2D rotation (what we just did):
+    [x0, x1] → rotate both by the same angle θ
+
+  4D rotation (key transition):
+    [x0, x1, x2, x3] → split into 2 groups: [x0,x1] and [x2,x3]
+    Group 1 rotates by frequency θ0 (captures fine-grained position)
+    Group 2 rotates by frequency θ1 (captures coarse-grained position)
+
+  8D rotation (what RoPE actually does):
+    [x0,x1, x2,x3, x4,x5, x6,x7] → split into 4 groups
+    Each group uses a different frequency: θ0 > θ1 > θ2 > θ3
+
+  Clock Analogy for Frequency Groups:
+    Second hand (high frequency): rotates fast, distinguishes seconds
+    Minute hand (mid frequency): rotates slower, distinguishes minutes
+    Hour hand (low frequency): rotates slowest, distinguishes hours
+
+    RoPE uses the same idea:
+    - High-frequency groups: like second hands, distinguish adjacent positions
+    - Low-frequency groups: like hour hands, distinguish distant positions
+    - Together: they encode both "who is next to me" and "who is far away"
+""")
+
 dim = 8
 base = 10000.0
 

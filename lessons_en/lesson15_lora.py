@@ -12,6 +12,23 @@ LoRA (Low-Rank Adaptation) solution:
   Inject two low-rank matrices A and B
   Only train A and B (very few parameters!)
 
+[Why Does Low-Rank Work? — Intuition]
+
+  Full fine-tuning = Renovating a house: you can change all walls, floors, ceilings (4096 directions)
+  LoRA = Renovating a house: only repaint walls and change curtains (8 directions is enough)
+
+  Research shows that during fine-tuning, the weight change ΔW has "effective rank" of only 8-64.
+  That means in a 4096-dimensional space, only 8-64 directions are actually changing!
+
+  Why? Because fine-tuning adjusts an already-trained model, not training from scratch.
+  The model already knows the language — fine-tuning only needs small adjustments.
+  These adjustments happen in a low-dimensional subspace.
+
+  Analogy:
+    A portrait photo needs editing → you adjust brightness, contrast, saturation (3 knobs)
+    You don't need to repaint every pixel from scratch (millions of knobs)
+    LoRA = finding the right "knobs" to adjust
+
 This lesson covers:
   1. What is low-rank decomposition
   2. Mathematical principles of LoRA

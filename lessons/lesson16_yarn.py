@@ -204,6 +204,32 @@ def precompute_yarn_freqs_cis(dim, end, original_max=2048, scale_factor=4.0,
     smooth = smooth.clamp(0, 1)
     inv_freq = (1 - smooth) * inv_freq_extrapolation + smooth * inv_freq_interpolation
 
+    # 【频率分组的直觉解释】
+    #
+    # YaRN 把频率分成三组，每组用不同策略：
+    #
+    # 高频组（波长 < high_freq_wavelen）：
+    #   smooth ≈ 0 → inv_freq ≈ inv_freq_extrapolation（直接外推）
+    #   为什么？高频已经能区分相邻位置，不需要插值
+    #   类比：秒针不需要调慢，1秒就是1秒
+    #
+    # 低频组（波长 > low_freq_wavelen）：
+    #   smooth ≈ 1 → inv_freq ≈ inv_freq_interpolation（线性插值）
+    #   为什么？低频在长序列上会"转太多圈"，需要压缩
+    #   类比：时针在长周期上需要调整刻度
+    #
+    # 中间组（high_freq < 波长 < low_freq）：
+    #   smooth 在 0~1 之间 → 混合外推和插值
+    #   为什么？这些频率既需要保持区分力，又不能转太快
+    #   类比：分针需要适度调整
+    #
+    # 数值示例（scale_factor=4, original_max=2048）：
+    #   high_freq_wavelen = 2048 / 1.0 = 2048
+    #   low_freq_wavelen  = 2048 / 4.0 = 512
+    #   波长 < 512 → 纯外推（高频，保持原样）
+    #   波长 > 2048 → 纯插值（低频，压缩频率）
+    #   512 < 波长 < 2048 → 平滑过渡
+
     # 位置 × 频率
     t = torch.arange(end)
     freqs = torch.outer(t, inv_freq).float()

@@ -9,6 +9,24 @@
 
 本课不涉及任何模型知识，只补齐基础。已经有基础的同学可以跳过。
 
+【环境安装】
+  1. 安装 Python 3.8+：https://www.python.org/downloads/
+     安装时勾选 "Add Python to PATH"（重要！）
+  2. 打开终端（Windows: 按 Win+R 输入 cmd；Mac: 打开"终端"app）
+  3. 安装 PyTorch：在终端输入 pip install torch
+  4. 安装其他依赖：pip install numpy
+  5. 验证安装：pip install torch numpy && python -c "import torch; print(torch.__version__)"
+  6. 运行本课：python lessons/lesson00_basics.py
+
+  如果你用的是 GPU，安装 GPU 版 PyTorch：
+    pip install torch --index-url https://download.pytorch.org/whl/cu118
+  （cu118 对应 CUDA 11.8，根据你的 CUDA 版本选择）
+
+  常见问题：
+    Q: "pip 不是内部命令" → Python 没加到 PATH，重新安装勾选
+    Q: "No module named torch" → 没装 PyTorch，运行 pip install torch
+    Q: 下载太慢 → 用国内镜像：pip install torch -i https://pypi.tuna.tsinghua.edu.cn/simple
+
 运行: python lessons/lesson00_basics.py
 """
 
@@ -16,6 +34,87 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+
+
+# ============================================================
+# 第0部分：5分钟理解深度学习
+# ============================================================
+
+print("=" * 60)
+print("第0部分：5分钟理解深度学习")
+print("=" * 60)
+
+print("""
+【什么是深度学习？用一句话说】
+
+  深度学习 = 让计算机通过"看大量数据"自动学会一项技能
+
+  类比：教小孩认猫
+    传统编程：你写规则"如果有尖耳朵+胡须+尾巴 → 是猫"
+             问题：规则写不完，总有漏的
+    深度学习：给小孩看1万张猫的照片，他自己学会认猫
+             优势：不需要写规则，自己总结规律
+
+【大模型是什么？】
+
+  大模型 = 读了几千亿字的文章后，学会了"说话"的深度学习模型
+
+  训练过程：
+    1. 给模型看大量文本："今天天气很___"
+    2. 模型猜下一个字："好"（猜对了奖励，猜错了调整）
+    3. 重复几万亿次 → 模型学会了语言的规律
+    4. 你问它问题，它就能像人一样回答
+
+【你需要学什么？】
+
+  要理解大模型，你需要知道：
+    1. Python — 和计算机沟通的语言（本课第1部分）
+    2. 张量 (Tensor) — 计算机存储数据的方式（本课第2部分）
+    3. 矩阵运算 — 大模型计算的核心（本课第3部分）
+    4. 自动求导 — 让模型"自动学习"的魔法（本课第2部分）
+
+  学完这4个，你就能看懂后面所有的课程了！
+""")
+
+# ============================================================
+# 第0.5部分：终端和 pip 是什么？
+# ============================================================
+
+print("=" * 60)
+print("第0.5部分：终端和 pip 是什么？")
+print("=" * 60)
+
+print("""
+如果你从没用过终端，这里快速解释：
+
+【终端 (Terminal / CMD / PowerShell)】
+  就是一个黑色窗口，你输入文字命令，计算机执行。
+  打开方式：
+    Windows: 按 Win+R，输入 cmd，回车
+    Mac: 打开"终端"应用
+    VSCode/Trae: 菜单栏 → 终端 → 新建终端
+
+【pip 是什么？】
+  pip = Python 的"应用商店"
+  就像手机用 App Store 安装 App，
+  Python 用 pip 安装"包"（别人写好的代码库）。
+
+  常用命令：
+    pip install xxx    → 安装 xxx 包
+    pip uninstall xxx  → 卸载 xxx 包
+    pip list           → 查看已安装的包
+
+【import 是什么？】
+  import = 在你的代码里"引入"别人写好的包
+
+  import torch       → 引入 PyTorch（深度学习框架）
+  import numpy as np → 引入 NumPy（数学计算库），简写为 np
+
+  类比：
+    pip install = 去书店买一本书
+    import      = 把书从书架拿下来翻开
+    用里面的函数 = 照着书上的方法做
+""")
 
 
 # ============================================================
@@ -446,9 +545,9 @@ print("准备工具")
 print("=" * 60)
 
 print(f"""
-✅ Python 版本: {torch.__version__[:6]} (PyTorch)
-✅ 你的 PyTorch 版本: {torch.__version__}
-✅ CUDA 可用: {torch.cuda.is_available()}
+[OK] Python version: {torch.__version__[:6]} (PyTorch)
+[OK] Your PyTorch version: {torch.__version__}
+[OK] CUDA available: {torch.cuda.is_available()}
 """)
 
 print("""
@@ -456,11 +555,164 @@ print("""
   - Python 3.8+
   - PyTorch 2.0+
   - 文本编辑器 (VSCode / PyCharm / Trae)
-  - 一点点耐心 😊
+  - 一点点耐心
 
 可选:
   - GPU (训练更快, 但 CPU 也能学)
   - Jupyter Notebook (交互式运行)
+""")
 
-下一步: 学习第1课 - Tokenizer!
+
+# ============================================================
+# 第4部分：把所有知识串起来 — 训练你的第一个模型
+# ============================================================
+
+print("=" * 60)
+print("第4部分：把所有知识串起来 — 训练你的第一个模型")
+print("=" * 60)
+
+print("""
+前面学了 Python、张量、矩阵运算、自动求导、nn.Module...
+这些知识怎么串起来？答案就是：训练一个模型！
+
+下面我们用 20 行代码，从零训练一个"预测数字"的小模型。
+这是大模型训练的微缩版——原理完全一样，只是规模小了几万倍。
+""")
+
+# --- 第1步：准备数据 ---
+print("[4.1] 第1步：准备数据")
+print("-" * 40)
+
+# 训练数据：输入 x，预测 y = x * 2 + 1
+# 类比：大模型的训练数据是"大量文本"，这里是"大量数字对"
+torch.manual_seed(42)
+x_train = torch.randn(100, 1)           # 100个随机输入
+y_train = x_train * 2 + 1 + torch.randn(100, 1) * 0.1  # y = 2x + 1 + 噪声
+
+print(f"训练数据: {len(x_train)} 个样本")
+print(f"前3个: x={x_train[:3].squeeze().tolist()}")
+print(f"       y={y_train[:3].squeeze().tolist()}")
+print(f"目标: 让模型学会 y ≈ 2x + 1 这个规律")
+
+
+# --- 第2步：定义模型 ---
+print("\n[4.2] 第2步：定义模型")
+print("-" * 40)
+
+class SimpleModel(nn.Module):
+    """最简单的模型：1个输入 → 1个输出（就是 y = w*x + b）"""
+    def __init__(self):
+        super().__init__()
+        self.linear = nn.Linear(1, 1)  # 1维输入，1维输出
+
+    def forward(self, x):
+        return self.linear(x)
+
+model = SimpleModel()
+print(f"模型: y = w*x + b")
+print(f"初始参数: w={model.linear.weight.item():.4f}, b={model.linear.bias.item():.4f}")
+print(f"（初始是随机值，还没学呢）")
+
+
+# --- 第3步：定义损失函数和优化器 ---
+print("\n[4.3] 第3步：定义损失函数和优化器")
+print("-" * 40)
+
+criterion = nn.MSELoss()  # 均方误差：衡量预测值和真实值的差距
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01)  # 随机梯度下降
+
+print(f"损失函数: MSELoss (预测值和真实值的差的平方)")
+print(f"优化器: SGD (学习率=0.01)")
+print(f"类比:")
+print(f"  损失函数 = 考试分数（越低越好）")
+print(f"  优化器 = 学习方法（每次调整一点点）")
+
+
+# --- 第4步：训练循环 ---
+print("\n[4.4] 第4步：训练循环（核心！）")
+print("-" * 40)
+
+print("""
+训练循环就是4步，反复执行：
+  1. 前向传播：用当前参数算预测值
+  2. 算损失：预测值和真实值差多少
+  3. 反向传播：算梯度（参数该往哪调）
+  4. 更新参数：按梯度方向调整参数
+""")
+
+for epoch in range(200):
+    # 1. 前向传播
+    y_pred = model(x_train)
+
+    # 2. 算损失
+    loss = criterion(y_pred, y_train)
+
+    # 3. 反向传播（自动求导！）
+    optimizer.zero_grad()  # 清空旧梯度
+    loss.backward()        # 计算新梯度
+
+    # 4. 更新参数
+    optimizer.step()
+
+    if (epoch + 1) % 50 == 0:
+        w = model.linear.weight.item()
+        b = model.linear.bias.item()
+        print(f"  Epoch {epoch+1:3d}: loss={loss.item():.4f}, w={w:.4f}, b={b:.4f}")
+
+
+# --- 第5步：看结果 ---
+print("\n[4.5] 第5步：看结果")
+print("-" * 40)
+
+w = model.linear.weight.item()
+b = model.linear.bias.item()
+print(f"训练前: w=随机, b=随机")
+print(f"训练后: w={w:.4f}, b={b:.4f}")
+print(f"真实值: w=2.0000, b=1.0000")
+print(f"误差:   w差{abs(w-2):.4f}, b差{abs(b-1):.4f}")
+print(f"→ 模型学会了 y ≈ {w:.2f}x + {b:.2f}，非常接近 y = 2x + 1！")
+
+
+# --- 测试 ---
+print("\n[4.6] 测试：给模型一个新输入")
+print("-" * 40)
+
+test_x = torch.tensor([[3.0]])
+test_y = model(test_x).item()
+true_y = 3.0 * 2 + 1
+print(f"输入 x = 3.0")
+print(f"模型预测: y = {test_y:.4f}")
+print(f"真实值:   y = {true_y:.4f}")
+print(f"误差: {abs(test_y - true_y):.4f}")
+
+
+print("""
+═══════════════════════════════════════════
+【总结：这个 Demo 和大模型的关系】
+═══════════════════════════════════════════
+
+  这个小模型                  大模型 (GPT)
+  ──────────                  ──────────
+  输入: 1个数字               输入: 一段文字（几百个token）
+  输出: 1个数字               输出: 下一个字的概率
+  参数: 2个 (w, b)            参数: 几十亿个
+  训练数据: 100个数字对        训练数据: 几千亿字
+  训练循环: 200步              训练循环: 几百万步
+  损失函数: MSELoss            损失函数: CrossEntropyLoss
+
+  但核心流程完全一样！
+    1. 准备数据
+    2. 定义模型
+    3. 定义损失函数和优化器
+    4. 循环：前向→算损失→反向→更新
+    5. 测试效果
+
+  后面所有课程，都是在这个框架上"加东西"：
+    - 更复杂的模型结构（Attention, Transformer, ...）
+    - 更大的数据（文本语料）
+    - 更多的训练技巧（学习率调度, 梯度裁剪, ...）
+
+  但万变不离其宗，核心就是这5步！
+
+下一步: 学习第1课 - Tokenizer（把文字变成数字）!
 """)

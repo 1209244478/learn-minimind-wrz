@@ -10,6 +10,24 @@ Before diving into LLMs, you need three fundamental skills:
 This lesson covers no model knowledge — just the prerequisites.
 If you already know these, feel free to skip.
 
+[Environment Setup]
+  1. Install Python 3.8+: https://www.python.org/downloads/
+     Check "Add Python to PATH" during installation (important!)
+  2. Open a terminal (Windows: Win+R → type cmd; Mac: open Terminal app)
+  3. Install PyTorch: type pip install torch in the terminal
+  4. Install other dependencies: pip install numpy
+  5. Verify installation: python -c "import torch; print(torch.__version__)"
+  6. Run this lesson: python lessons_en/lesson00_basics.py
+
+  If you have a GPU, install the GPU version of PyTorch:
+    pip install torch --index-url https://download.pytorch.org/whl/cu118
+  (cu118 corresponds to CUDA 11.8, choose based on your CUDA version)
+
+  Common issues:
+    Q: "'pip' is not recognized" → Python not in PATH, reinstall with PATH option
+    Q: "No module named torch" → PyTorch not installed, run pip install torch
+    Q: Download too slow → Use a mirror: pip install torch -i https://pypi.tuna.tsinghua.edu.cn/simple
+
 Run: python lessons_en/lesson00_basics.py
 """
 
@@ -17,6 +35,87 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+
+
+# ============================================================
+# Part 0: Deep Learning in 5 Minutes
+# ============================================================
+
+print("=" * 60)
+print("Part 0: Deep Learning in 5 Minutes")
+print("=" * 60)
+
+print("""
+[What is Deep Learning? In one sentence]
+
+  Deep Learning = Teaching computers to learn skills automatically by "seeing lots of data"
+
+  Analogy: Teaching a child to recognize cats
+    Traditional programming: You write rules "if pointy ears + whiskers + tail → it's a cat"
+             Problem: You can't write enough rules, there are always exceptions
+    Deep learning: Show the child 10,000 photos of cats, they learn to recognize cats on their own
+             Advantage: No rules needed, the model discovers patterns itself
+
+[What is a Large Language Model (LLM)?]
+
+  LLM = A deep learning model that learned to "speak" after reading hundreds of billions of words
+
+  Training process:
+    1. Show the model lots of text: "The weather today is very ___"
+    2. Model guesses the next word: "good" (rewarded if correct, adjusted if wrong)
+    3. Repeat trillions of times → Model learns language patterns
+    4. You ask it a question, it can answer like a human
+
+[What do you need to learn?]
+
+  To understand LLMs, you need to know:
+    1. Python — The language to communicate with computers (Part 1 of this lesson)
+    2. Tensors — How computers store data (Part 2 of this lesson)
+    3. Matrix operations — The core of LLM computation (Part 3 of this lesson)
+    4. Autograd — The magic that makes models "learn automatically" (Part 2 of this lesson)
+
+  Once you learn these 4 things, you can understand all the following lessons!
+""")
+
+# ============================================================
+# Part 0.5: What are Terminal and pip?
+# ============================================================
+
+print("=" * 60)
+print("Part 0.5: What are Terminal and pip?")
+print("=" * 60)
+
+print("""
+If you've never used a terminal, here's a quick explanation:
+
+[Terminal (Terminal / CMD / PowerShell)]
+  It's a text window where you type commands and the computer executes them.
+  How to open:
+    Windows: Press Win+R, type cmd, press Enter
+    Mac: Open the "Terminal" app
+    VSCode/Trae: Menu → Terminal → New Terminal
+
+[What is pip?]
+  pip = Python's "App Store"
+  Just like you use the App Store to install apps on your phone,
+  Python uses pip to install "packages" (code libraries written by others).
+
+  Common commands:
+    pip install xxx    → Install package xxx
+    pip uninstall xxx  → Uninstall package xxx
+    pip list           → See all installed packages
+
+[What is import?]
+  import = "Bring in" a package written by others into your code
+
+  import torch       → Import PyTorch (deep learning framework)
+  import numpy as np → Import NumPy (math library), abbreviated as np
+
+  Analogy:
+    pip install = Go to a bookstore and buy a book
+    import      = Take the book off the shelf and open it
+    Use its functions = Follow the methods in the book
+""")
 
 
 # ============================================================
@@ -462,6 +561,150 @@ Required tools:
 Optional:
   - GPU (faster training, but CPU works for learning)
   - Jupyter Notebook (interactive execution)
+""")
 
-Next up: Lesson 1 - Tokenizer!
+
+# ============================================================
+# Part 4: Putting It All Together — Train Your First Model
+# ============================================================
+
+print("=" * 60)
+print("Part 4: Putting It All Together — Train Your First Model")
+print("=" * 60)
+
+print("""
+We've learned Python, tensors, matrix operations, autograd, nn.Module...
+How do these all fit together? Answer: Train a model!
+
+Below we'll train a "number prediction" model in ~20 lines of code.
+This is a miniature version of LLM training — same principles, just 10,000x smaller.
+""")
+
+# --- Step 1: Prepare Data ---
+print("[4.1] Step 1: Prepare Data")
+print("-" * 40)
+
+torch.manual_seed(42)
+x_train = torch.randn(100, 1)
+y_train = x_train * 2 + 1 + torch.randn(100, 1) * 0.1  # y = 2x + 1 + noise
+
+print(f"Training data: {len(x_train)} samples")
+print(f"First 3: x={x_train[:3].squeeze().tolist()}")
+print(f"         y={y_train[:3].squeeze().tolist()}")
+print(f"Goal: Let the model learn y = 2x + 1")
+
+
+# --- Step 2: Define Model ---
+print("\n[4.2] Step 2: Define Model")
+print("-" * 40)
+
+class SimpleModel(nn.Module):
+    """Simplest model: 1 input -> 1 output (y = w*x + b)"""
+    def __init__(self):
+        super().__init__()
+        self.linear = nn.Linear(1, 1)
+
+    def forward(self, x):
+        return self.linear(x)
+
+model = SimpleModel()
+print(f"Model: y = w*x + b")
+print(f"Initial params: w={model.linear.weight.item():.4f}, b={model.linear.bias.item():.4f}")
+print(f"(Random values — hasn't learned yet)")
+
+
+# --- Step 3: Define Loss and Optimizer ---
+print("\n[4.3] Step 3: Define Loss and Optimizer")
+print("-" * 40)
+
+criterion = nn.MSELoss()
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+
+print(f"Loss function: MSELoss (mean squared error between prediction and truth)")
+print(f"Optimizer: SGD (learning rate=0.01)")
+print(f"Analogy:")
+print(f"  Loss function = exam score (lower is better)")
+print(f"  Optimizer = study method (adjust a little each time)")
+
+
+# --- Step 4: Training Loop ---
+print("\n[4.4] Step 4: Training Loop (The Core!)")
+print("-" * 40)
+
+print("""
+The training loop is 4 steps, repeated over and over:
+  1. Forward pass: compute predictions with current parameters
+  2. Compute loss: how far are predictions from truth?
+  3. Backward pass: compute gradients (which direction to adjust)
+  4. Update parameters: adjust in the gradient direction
+""")
+
+for epoch in range(200):
+    y_pred = model(x_train)
+    loss = criterion(y_pred, y_train)
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+    if (epoch + 1) % 50 == 0:
+        w = model.linear.weight.item()
+        b = model.linear.bias.item()
+        print(f"  Epoch {epoch+1:3d}: loss={loss.item():.4f}, w={w:.4f}, b={b:.4f}")
+
+
+# --- Step 5: Results ---
+print("\n[4.5] Step 5: Results")
+print("-" * 40)
+
+w = model.linear.weight.item()
+b = model.linear.bias.item()
+print(f"Before training: w=random, b=random")
+print(f"After training:  w={w:.4f}, b={b:.4f}")
+print(f"True values:     w=2.0000, b=1.0000")
+print(f"Error:           w off by {abs(w-2):.4f}, b off by {abs(b-1):.4f}")
+print(f"-> Model learned y = {w:.2f}x + {b:.2f}, very close to y = 2x + 1!")
+
+
+# --- Test ---
+print("\n[4.6] Test: Give the model a new input")
+print("-" * 40)
+
+test_x = torch.tensor([[3.0]])
+test_y = model(test_x).item()
+true_y = 3.0 * 2 + 1
+print(f"Input x = 3.0")
+print(f"Model predicts: y = {test_y:.4f}")
+print(f"True value:     y = {true_y:.4f}")
+print(f"Error: {abs(test_y - true_y):.4f}")
+
+
+print("""
+=============================================================
+[Summary: How This Demo Relates to LLMs]
+=============================================================
+
+  This tiny model              Large Model (GPT)
+  ───────────────              ────────────────
+  Input: 1 number              Input: text (hundreds of tokens)
+  Output: 1 number             Output: probability of next token
+  Parameters: 2 (w, b)         Parameters: billions
+  Training data: 100 pairs     Training data: hundreds of billions of words
+  Training loop: 200 steps     Training loop: millions of steps
+  Loss function: MSELoss       Loss function: CrossEntropyLoss
+
+  But the core process is exactly the same!
+    1. Prepare data
+    2. Define model
+    3. Define loss function and optimizer
+    4. Loop: forward -> compute loss -> backward -> update
+    5. Test the results
+
+  All subsequent lessons just "add things" to this framework:
+    - More complex model architectures (Attention, Transformer, ...)
+    - Larger data (text corpora)
+    - More training tricks (learning rate scheduling, gradient clipping, ...)
+
+  But the core is always these 5 steps!
+
+Next up: Lesson 1 - Tokenizer (turning text into numbers)!
 """)

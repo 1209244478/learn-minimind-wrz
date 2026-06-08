@@ -258,6 +258,26 @@ Research shows that FFN can be viewed as a "key-value memory system":
   That is: input x computes match scores (activation values) with all keys,
   then weighted sum of corresponding values based on match scores.
 
+  [Mathematical Breakdown of FFN as Key-Value Memory]
+
+    FFN(x) = W_down · σ(W_up · x)
+
+    Step 1: W_up · x  →  each row of W_up is a "key"
+      h_i = key_i · x    (how well does input x match pattern key_i?)
+
+    Step 2: σ(h_i)  →  activation (how strongly should we use this knowledge?)
+      a_i = σ(h_i)       (0 = not relevant, 1 = very relevant)
+
+    Step 3: W_down · a  →  each column of W_down is a "value"
+      y = Σ a_i · value_i  (weighted sum of knowledge)
+
+    Library Analogy:
+      key_i = a book's index/title (what topic does this book cover?)
+      value_i = the book's content (what knowledge does it contain?)
+      h_i = how well the input matches this book's topic
+      a_i = should we read this book? (0 = skip, 1 = read carefully)
+      y = combined knowledge from all relevant books
+
   Analogy:
     key = "this is a subject position" -> value = "features for filling in nouns"
     key = "this is a negation position" -> value = "features for reversing sentiment"

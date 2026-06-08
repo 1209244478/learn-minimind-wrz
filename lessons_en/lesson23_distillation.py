@@ -47,6 +47,31 @@ Intuition:
 
   Soft labels contain more information! They tell the student "cats and tigers are similar"
   — this is Dark Knowledge.
+
+[Why are soft labels better than hard labels? A concrete example]
+
+  Suppose we're doing image classification with 5 classes: cat, dog, tiger, car, table
+
+  Hard labels (traditional training):
+    Correct answer is "cat" -> [0, 0, 1, 0, 0]
+    Student only knows: "The answer is cat, everything else is wrong"
+    Learned: cat != dog, cat != car (but not which ones are *similar* to cat)
+
+  Soft labels (knowledge distillation, T=2):
+    Teacher output -> [0.60, 0.10, 0.25, 0.03, 0.02]
+    Student learns:
+      - Cat has highest probability (60%) -> answer is cat ✓
+      - Tiger is second (25%) -> cat and tiger are similar! (both felines)
+      - Dog is third (10%) -> cat and dog are somewhat similar! (both pets)
+      - Car and table have very low probability -> cat is nothing like them
+
+  This is "dark knowledge": hard labels only tell you "which is correct",
+  soft labels also tell you "what is similar to what" — this similarity info is invaluable!
+
+  Analogy:
+    Hard label = exam only tells you "the answer is C"
+    Soft label = teacher says "C is most correct, but B has some merit, A is completely wrong"
+    -> Soft labels help you understand "why", not just "what"
 """
 
 print("=" * 70)

@@ -349,6 +349,27 @@ print(f"总计:      {total_params:>10,}")
 print(f"\n→ Transformer Blocks 占了绝大部分参数")
 print(f"→ 权重共享节省了 {emb_params:,} 个参数")
 
+# 【新增】每个 Block 内部的参数量拆解
+print("\n" + "-" * 50)
+print("【每个 Block 内部的参数量拆解】")
+print("-" * 50)
+if len(model.layers) > 0:
+    block = model.layers[0]
+    attn_params = sum(p.numel() for p in block.attention.parameters())
+    ffn_params = sum(p.numel() for p in block.feed_forward.parameters())
+    norm_params_block = sum(p.numel() for p in block.attention_norm.parameters()) + \
+                        sum(p.numel() for p in block.ffn_norm.parameters())
+    block_total = attn_params + ffn_params + norm_params_block
+
+    print(f"  Attention 层:  {attn_params:>10,} ({attn_params/block_total*100:.1f}%)")
+    print(f"    - Q/K/V/O 投影: 4 × (hidden × hidden) = {4 * 512 * 512:,}")
+    print(f"  FFN 层:        {ffn_params:>10,} ({ffn_params/block_total*100:.1f}%)")
+    print(f"    - gate/up/down: 3 × (hidden × intermediate) = {3 * 512 * 1408:,}")
+    print(f"  RMSNorm (×2):  {norm_params_block:>10,} ({norm_params_block/block_total*100:.1f}%)")
+    print(f"  Block 总计:    {block_total:>10,}")
+    print(f"\n  → FFN 参数量 > Attention 参数量（因为 intermediate_size > hidden_size）")
+    print(f"  → 这是 Transformer 的典型比例：FFN 约占 2/3，Attention 约占 1/3")
+
 
 # ============================================================
 # 第六步：不同规模的模型对比

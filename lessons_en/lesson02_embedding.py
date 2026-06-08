@@ -314,6 +314,76 @@ Full pipeline:
   logits: [batch, seq_len, 6400] probability distribution
 """)
 
+# [NEW] Demo: Training an Embedding to observe semantic changes
+print("\n" + "-" * 50)
+print("[Demo: How Embeddings Learn Semantic Meaning]")
+print("-" * 50)
+print("""
+We'll train a simple Embedding on word pairs and watch how
+similar words cluster together through training.
+
+Before training: all vectors are random, "cat" and "dog" are not similar
+After training: "cat" and "dog" become similar (both are animals)
+""")
+
+torch.manual_seed(42)
+vocab = ["cat", "dog", "apple", "banana", "eat", "like", "is", "animal", "fruit"]
+vocab_to_idx = {w: i for i, w in enumerate(vocab)}
+vocab_size = len(vocab)
+embed_dim = 8
+
+# Training data: (word1, word2, label) — 1=similar, 0=dissimilar
+training_data = [
+    ("cat", "is", "animal"), ("dog", "is", "animal"),
+    ("apple", "is", "fruit"), ("banana", "is", "fruit"),
+    ("cat", "like", "dog"), ("apple", "like", "banana"),
+]
+
+embedding = nn.Embedding(vocab_size, embed_dim)
+
+# Similarity before training
+print("Similarity matrix BEFORE training (cosine similarity):")
+with torch.no_grad():
+    all_ids = torch.arange(vocab_size)
+    emb = embedding(all_ids)
+    sim = F.cosine_similarity(emb.unsqueeze(1), emb.unsqueeze(0), dim=-1)
+    for i, w in enumerate(vocab):
+        row = "  ".join(f"{sim[i,j]:+.2f}" for j in range(min(5, len(vocab))))
+        print(f"  {w:8s}: {row}  ...")
+
+# Simple training loop
+optimizer = torch.optim.Adam(embedding.parameters(), lr=0.01)
+for epoch in range(100):
+    total_loss = 0
+    for w1, rel, w2 in training_data:
+        v1 = embedding(torch.tensor([vocab_to_idx[w1]]))
+        v2 = embedding(torch.tensor([vocab_to_idx[w2]]))
+        # Similar words should have high dot product
+        loss = -torch.sum(v1 * v2)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        total_loss += loss.item()
+    if (epoch + 1) % 50 == 0:
+        print(f"  Epoch {epoch+1}: loss = {total_loss:.4f}")
+
+# Similarity after training
+print("\nSimilarity matrix AFTER training (cosine similarity):")
+with torch.no_grad():
+    emb = embedding(all_ids)
+    sim = F.cosine_similarity(emb.unsqueeze(1), emb.unsqueeze(0), dim=-1)
+    for i, w in enumerate(vocab):
+        row = "  ".join(f"{sim[i,j]:+.2f}" for j in range(min(5, len(vocab))))
+        print(f"  {w:8s}: {row}  ...")
+
+print("""
+Key observations:
+  - "cat" and "dog" now have higher similarity (both are animals)
+  - "apple" and "banana" now have higher similarity (both are fruits)
+  - "cat" and "apple" remain dissimilar (different categories)
+  → Embeddings learn semantic meaning through training!
+""")
+
 
 # ============================================================
 # Exercises

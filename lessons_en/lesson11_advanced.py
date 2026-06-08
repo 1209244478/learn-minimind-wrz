@@ -116,6 +116,42 @@ print(f"  - Only use some experts each time → controllable computation")
 print(f"  - Gating network automatically selects the most suitable experts")
 print(f"  - Different types of tokens are routed to different experts")
 
+# [NEW] Router Collapse Problem and aux_loss Solution
+print("\n" + "-" * 50)
+print("[MoE's Router Collapse Problem & Solution]")
+print("-" * 50)
+print("""
+Problem: Without aux_loss, the router tends to send all tokens to the same expert.
+
+  Why? The "rich get richer" effect:
+    1. Expert 0 gets slightly more tokens initially (random)
+    2. Expert 0 gets more training → becomes better
+    3. Better expert → router sends it more tokens
+    4. Other experts get less training → become worse
+    5. Eventually: Expert 0 handles everything, others are wasted
+
+  Without aux_loss (load distribution):
+    Expert 0: ████████████████████ 80% of tokens
+    Expert 1: ████ 15% of tokens
+    Expert 2: █ 3% of tokens
+    Expert 3: ▏ 2% of tokens
+    → 3 experts are wasted!
+
+  With aux_loss (load distribution):
+    Expert 0: █████ 27% of tokens
+    Expert 1: ████ 25% of tokens
+    Expert 2: █████ 26% of tokens
+    Expert 3: ████ 22% of tokens
+    → All experts contribute!
+
+  How aux_loss works:
+    aux_loss = (load × gate_scores.mean(0)).sum() × num_experts × coef
+    - load = fraction of tokens each expert receives
+    - gate_scores.mean(0) = average routing probability per expert
+    - When load is uneven, this loss is high → encourages even distribution
+    - coef (typically 0.01) controls how strongly we enforce balance
+""")
+
 
 # ============================================================
 # 2. TTT — Test-Time Training
