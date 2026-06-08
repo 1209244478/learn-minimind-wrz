@@ -1,6 +1,6 @@
-# MiniMind-wrz: 从0学习大语言模型
+# LLM-Zero: 从0学习大语言模型
 
-[![GitHub stars](https://img.shields.io/github/stars/1209244478/learn-minimind-wrz?style=social)](https://github.com/1209244478/learn-minimind-wrz)
+[![GitHub stars](https://img.shields.io/github/stars/1209244478/llm-zero?style=social)](https://github.com/1209244478/llm-zero)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
