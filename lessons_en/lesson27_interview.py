@@ -799,8 +799,10 @@ Q21: Common misconceptions clarified
    When p is one-hot (like labels), CE = KL (since H(p)=0)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Q22: 2024-2025 LLM New Features Overview
+Q22: 2024-2026 LLM New Features Overview
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+--- 2024 ---
 
 1. DeepSeek-V3 (2024.12):
    - MoE + MLA (Multi-head Latent Attention, new KV Cache compression)
@@ -835,6 +837,74 @@ Q22: 2024-2025 LLM New Features Overview
    - vLLM: PagedAttention, high-throughput inference
    - SGLang: Programmatic LLM invocation, RadixAttention
    - TensorRT-LLM: NVIDIA official, maximum performance
+
+--- 2025 ---
+
+7. DeepSeek-R1 (2025.1):
+   - Milestone of Inference-Time Compute
+   - RL training teaches models to "think" (generate chain-of-thought)
+   - Proved: small model + inference time > large model direct generation
+   - Starting point of the open-source reasoning model wave
+
+8. GPT-5 (2025):
+   - Native multimodal fusion (text+image+audio+video unified pretraining)
+   - Million-token context window
+   - Built-in reasoning engine, adaptive reasoning depth
+
+9. Claude 4 / Gemini 2.5 (2025):
+   - Claude 4: MCP protocol (Model Context Protocol), Agent standardization
+   - Gemini 2.5: Test-Time Compute benchmark architecture
+
+--- 2026 (Latest Frontier) ---
+
+10. DeepSeek-V4 (2026.4):
+    - 1.6T total / 49B active params (extreme MoE sparsity)
+    - V4-Flash: 284B total / 13B active (ultimate cost-efficiency)
+    - Native 1M-token context window
+    - DSA2 sparse attention: inference FLOPs only 10% of V3.2, KV Cache only 7%
+    - mHC (Manifold-Constrained Hyper-Connections): replaces residual connections
+    - FP4 expert weights: native Blackwell hardware support
+    - Hybrid attention: sliding window + compression (4:1 top-k / 128:1 dense)
+
+11. GPT-5.4 / 5.5 / 5.6 (2026):
+    - GPT-5.4: Native Computer Use (model operates computers directly)
+    - 1.5M-token context window (GPT-5.6)
+    - Hallucination rate reduced 52.5%, factual accuracy improved 33%
+    - Built-in Codex performance, no separate coding model needed
+
+12. Claude Opus 4.6 / Mythos 5 (2026):
+    - Adaptive reasoning: effort parameter dynamically adjusts reasoning depth
+    - Server-side context compaction: auto-summarizes old turns, "infinite conversations"
+    - 128K output tokens: generate complete technical docs in one pass
+    - Cybench security test 100% (superhuman code vulnerability detection)
+
+13. Gemini 3.1 Pro (2026):
+    - Nodal Reasoning: explores multiple conflicting hypotheses in parallel
+    - Generates "reasoning forest" instead of linear chain-of-thought
+    - GPQA Diamond 94.3% (PhD-level scientific reasoning)
+    - ARC-AGI-2 77.1% (abstract reasoning, approaching human 85-90%)
+
+14. Three paradigm shifts of 2026:
+    a) Inference-Time Compute becomes standard:
+       - From "train with more compute" to "think longer at inference"
+       - o3/R1/DeepSeek-V4 all support adjustable reasoning depth
+       - IDC predicts: >60% enterprise AI adopts this by end of 2026
+    b) Agentic AI Year One:
+       - Agents go from "chatting" to "doing work"
+       - MCP/A2A protocol standardization = TCP/IP of the Agent era
+       - Multi-agent collaboration (coding + auditing + docs in parallel)
+       - Embodied AI: general-purpose service robots with LLMs in commercial use
+    c) Open-source models approach closed-source:
+       - DeepSeek-V4 open-sources 1.6T model
+       - Qwen3.6 / GLM-5.1 / Llama 4 open-source trillion-scale
+       - Chinese open-source models: Hugging Face downloads grew 300%+
+
+15. 2026 architecture trends:
+    - Compute-memory decoupling: Engram (static knowledge in cheap DRAM, freeing HBM)
+    - Liquid MoE: DeepSeek-V4's LMoE, dynamically adjusts active params at inference
+    - Linear complexity architectures: Mamba/SSM/RWKV become long-text standard
+    - Native multimodal: unified encoder for text/image/audio/video (not stitched)
+    - Small model explosion: 3B/7B/13B edge deployment, approaching 60B dense model performance
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Q23: Must-know coding questions for interviews
