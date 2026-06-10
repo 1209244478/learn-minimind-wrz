@@ -6,7 +6,7 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
 [![中文](https://img.shields.io/badge/README-中文-red.svg)](README.md)
 
-> **26 lessons to master LLMs from scratch** — From Python basics to SFT/DPO/RLHF, each lesson is a standalone `.py` file you can run immediately!
+> **27 lessons to master LLMs from scratch** — From Python basics to SFT/DPO/RLHF, each lesson is a standalone `.py` file you can run immediately!
 
 [中文版](README.md)
 
@@ -21,7 +21,7 @@ Based on the [MiniMind](https://github.com/jingyaogong/minimind) project, this l
 - **Each lesson runs independently** — No GPU needed, no data to download, just `python lesson00.py` and go
 - **Explains like you're five** — Every concept has intuitive analogy + math derivation + code implementation + running results, four layers of understanding
 - **Bilingual** — `lessons/` in Chinese + `lessons_en/` in English, fully synchronized content
-- **Complete coverage** — From Tokenizer to Multimodal, from pre-training to RLHF, 26 lessons cover the full LLM pipeline
+- **Complete coverage** — From Tokenizer to Multimodal, from pre-training to RLHF, 27 lessons cover the full LLM pipeline
 - **Maps to MiniMind** — Each lesson maps to the corresponding MiniMind source file, so you can read the real code after learning
 - **Rich intuitive analogies** — "Teaching a child to recognize cats" for deep learning, "clock" for RoPE frequency groups, "home renovation" for LoRA, "library" for FFN
 - **Concrete numbers** — GQA saves 87.5% KV Cache, LoRA needs only 0.1% parameters, MoE router collapse before/after comparison
@@ -73,6 +73,7 @@ Based on the [MiniMind](https://github.com/jingyaogong/minimind) project, this l
 | 24 | RLHF | RLHF / GRPO: aligning with human feedback |
 | 25 | Data Prep | Data preparation & cleaning: garbage in, garbage out |
 | 26 | Multimodal | Vision + Language: teaching the model to see (ViT + Projector + LLM) |
+| 27 | Interview | Interview Prep: 23 high-frequency questions + must-know code + 2024-2025 new features |
 
 ## Recommended Learning Paths
 
@@ -99,6 +100,7 @@ python lessons/lesson23_distillation.py    # Knowledge Distillation
 python lessons/lesson24_rlhf.py            # RLHF/GRPO
 python lessons/lesson25_data_prep.py       # Data Preparation
 python lessons/lesson26_multimodal.py      # Multimodal
+python lessons/lesson27_interview.py       # Interview Prep
 ```
 
 **English version:**
@@ -113,6 +115,7 @@ python lessons_en/lesson23_distillation.py    # Knowledge Distillation
 python lessons_en/lesson24_rlhf.py            # RLHF/GRPO
 python lessons_en/lesson25_data_prep.py       # Data Preparation
 python lessons_en/lesson26_multimodal.py      # Multimodal
+python lessons_en/lesson27_interview.py       # Interview Prep
 ```
 
 ## Dependencies
@@ -173,7 +176,8 @@ minimind-wrz-learn/
 │   ├── lesson23_distillation.py
 │   ├── lesson24_rlhf.py
 │   ├── lesson25_data_prep.py
-│   └── lesson26_multimodal.py
+│   ├── lesson26_multimodal.py
+│   └── lesson27_interview.py
 ├── lessons_en/                 # English lessons
 │   ├── lesson00_basics.py
 │   ├── lesson01_tokenizer.py
@@ -184,7 +188,8 @@ minimind-wrz-learn/
 │   ├── lesson23_distillation.py
 │   ├── lesson24_rlhf.py
 │   ├── lesson25_data_prep.py
-│   └── lesson26_multimodal.py
+│   ├── lesson26_multimodal.py
+│   └── lesson27_interview.py
 ├── README.md                   # Chinese README
 ├── README_EN.md                # English README (this file)
 └── requirements.txt

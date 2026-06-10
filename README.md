@@ -6,7 +6,7 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
 [![English](https://img.shields.io/badge/README-English-blue.svg)](README_EN.md)
 
-> **26课从零学会大语言模型** — 从 Python 基础到 SFT/DPO/RLHF，每课一个独立可运行的 `.py` 文件，0基础也能跟学！
+> **27课从零学会大语言模型** — 从 Python 基础到 SFT/DPO/RLHF，每课一个独立可运行的 `.py` 文件，0基础也能跟学！
 
 从零开始，一步步理解大语言模型的每一个组件。
 0基础也能学会！从 Python/PyTorch 基础到大模型部署，一课不缺。
@@ -17,7 +17,7 @@
 - **每课独立可运行** — 不需要 GPU，不需要下载数据，`python lesson00.py` 直接跑
 - **把学习者当"傻子"** — 每个概念都有直觉类比 + 数学推导 + 代码实现 + 运行结果，四重保障
 - **中英双语** — `lessons/` 中文版 + `lessons_en/` 英文版，内容完全同步
-- **覆盖完整** — 从 Tokenizer 到多模态，从预训练到 RLHF，26课涵盖 LLM 全链路
+- **覆盖完整** — 从 Tokenizer 到多模态，从预训练到 RLHF，27课涵盖 LLM 全链路
 - **与 MiniMind 对应** — 每课都标注了对应 MiniMind 原始项目的哪个文件，学完就能看懂源码
 - **丰富的直觉类比** — 用"教小孩认猫"解释深度学习，用"时钟"解释 RoPE 频率分组，用"装修"解释 LoRA，用"图书馆"解释 FFN
 - **具体数字对比** — GQA 节省 87.5% KV Cache、LoRA 只需 0.1% 参数、MoE 路由崩塌前后对比
@@ -69,6 +69,7 @@
 | 第24课 | RLHF | 强化学习人类反馈 / GRPO |
 | 第25课 | DataPrep | 数据准备与清洗：Garbage in, garbage out |
 | 第26课 | Multimodal | 多模态：让模型看图说话 (ViT + Projector + LLM) |
+| 第27课 | Interview | 面试进阶：23道高频面试题 + 手撕代码 + 2024-2025新特性 |
 
 ## 学习路线建议
 
@@ -93,6 +94,7 @@ python lessons/lesson23_distillation.py    # 知识蒸馏
 python lessons/lesson24_rlhf.py            # RLHF/GRPO
 python lessons/lesson25_data_prep.py       # 数据准备与清洗
 python lessons/lesson26_multimodal.py      # 多模态
+python lessons/lesson27_interview.py       # 面试进阶
 ```
 
 ## 依赖
@@ -138,3 +140,4 @@ pip install -r requirements.txt
 | 第24课 RLHF | trainer/train_grpo.py (奖励模型 + PPO/GRPO) |
 | 第25课 DataPrep | dataset/lm_dataset.py (数据清洗 + 去重) |
 | 第26课 Multimodal | 多模态：ViT + Projector + LLM 融合 |
+| 第27课 Interview | 面试进阶：23道高频题 + 手撕代码 + 新特性 |
